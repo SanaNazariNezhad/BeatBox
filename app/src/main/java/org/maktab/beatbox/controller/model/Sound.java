@@ -6,6 +6,9 @@ public class Sound {
     private String mName;
     private String mAssetPath;
 
+    //it is the id of sound loaded in sound pool.
+    private Integer mSoundId;
+
     public String getName() {
         return mName;
     }
@@ -21,6 +24,15 @@ public class Sound {
     public void setAssetPath(String assetPath) {
         mAssetPath = assetPath;
     }
+
+    public Integer getSoundId() {
+        return mSoundId;
+    }
+
+    public void setSoundId(Integer soundId) {
+        mSoundId = soundId;
+    }
+
 
     public Sound(String assetPath) {
         /*
