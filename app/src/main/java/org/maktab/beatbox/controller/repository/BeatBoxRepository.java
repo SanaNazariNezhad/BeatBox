@@ -84,4 +84,8 @@ public class BeatBoxRepository {
         if (playState == 0)
             Log.e(TAG, "this sound has not been played: " + sound.getName());
     }
+
+    public void releaseSoundPool() {
+        mSoundPool.release();
+    }
 }
