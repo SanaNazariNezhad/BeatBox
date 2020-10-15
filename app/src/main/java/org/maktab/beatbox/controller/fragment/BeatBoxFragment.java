@@ -53,6 +53,68 @@ public class BeatBoxFragment extends Fragment {
         mRepository = BeatBoxRepository.getInstance(getContext());
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+
+        mRepository.releaseSoundPool();
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView");
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_beat_box, container, false);
+
+        findViews(view);
+        initViews();
+        listeners();
+        seekBar();
+        setupAdapter();
+
+        return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        Log.d(TAG, "onDestroyView");
+    }
+
+
+    private void findViews(View view) {
+        mRecyclerView = view.findViewById(R.id.recycler_view_beat_box);
+        mSeekBar = view.findViewById(R.id.seekBar);
+        mImageButton_Play = view.findViewById(R.id.imageBtn_play);
+        mImageButton_Pause = view.findViewById(R.id.imageBtn_pause);
+        mTextViewTime = view.findViewById(R.id.txtView_Time);
+    }
+
+    private void initViews() {
+        int rowNumber = getResources().getInteger(R.integer.row_number);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), rowNumber));
+    }
+
+    private void listeners() {
+
+        mImageButton_Play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mRepository.playAgain();
+            }
+        });
+        mImageButton_Pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mRepository.pause();
+            }
+        });
+    }
+
     private void seekBar() {
         mSeekBar.setMax(mRepository.getMediaPlayer().getDuration());
         mSeekBar.setProgress(mRepository.getMediaPlayer().getCurrentPosition());
@@ -99,68 +161,6 @@ public class BeatBoxFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy");
-
-        mRepository.releaseSoundPool();
-    }
-
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView");
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_beat_box, container, false);
-
-        findViews(view);
-        initViews();
-        listeners();
-        seekBar();
-        setupAdapter();
-
-        return view;
-    }
-
-    private void listeners() {
-
-        mImageButton_Play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mRepository.playAgain();
-            }
-        });
-        mImageButton_Pause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mRepository.pause();
-            }
-        });
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        Log.d(TAG, "onDestroyView");
-    }
-
-
-    private void findViews(View view) {
-        mRecyclerView = view.findViewById(R.id.recycler_view_beat_box);
-        mSeekBar = view.findViewById(R.id.seekBar);
-        mImageButton_Play = view.findViewById(R.id.imageBtn_play);
-        mImageButton_Pause = view.findViewById(R.id.imageBtn_pause);
-        mTextViewTime = view.findViewById(R.id.txtView_Time);
-    }
-
-    private void initViews() {
-        int rowNumber = getResources().getInteger(R.integer.row_number);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), rowNumber));
-    }
-
     private void setupAdapter() {
         List<Sound> sounds = mRepository.getSounds();
         SoundAdapter adapter = new SoundAdapter(sounds);
@@ -180,9 +180,6 @@ public class BeatBoxFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     mRepository.play(mSound);
-//                    int res = getResources().getInteger(R.raw.sound_file_1);
-                    /*mMediaPlayer = MediaPlayer.create(getActivity(),R.raw.sound_file_1);
-                    mMediaPlayer.start();*/
                 }
             });
         }
