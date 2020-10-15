@@ -82,7 +82,8 @@ public class BeatBoxFragment extends Fragment {
     }
 
     private void initViews() {
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        int rowNumber = getResources().getInteger(R.integer.row_number);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), rowNumber));
     }
 
     private void setupAdapter() {
