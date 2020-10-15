@@ -1,5 +1,7 @@
 package org.maktab.beatbox.controller.model;
 
+import android.net.Uri;
+
 import java.io.File;
 
 public class Sound {

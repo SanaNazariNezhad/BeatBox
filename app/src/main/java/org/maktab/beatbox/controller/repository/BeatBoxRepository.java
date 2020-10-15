@@ -3,8 +3,8 @@ package org.maktab.beatbox.controller.repository;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.util.Log;
 
@@ -41,8 +41,6 @@ public class BeatBoxRepository {
         mSoundPool = new SoundPool.Builder()
                 .setMaxStreams(MAX_STREAMS)
                 .build();
-//        mSoundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
-
         loadSounds();
     }
 

@@ -1,5 +1,6 @@
 package org.maktab.beatbox.controller.fragment;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -88,6 +89,7 @@ public class BeatBoxFragment extends Fragment {
 
     private void setupAdapter() {
         List<Sound> sounds = mRepository.getSounds();
+//        List<MediaPlayer> mediaPlayers = mRepository.getMediaPlayers();
         SoundAdapter adapter = new SoundAdapter(sounds);
         mRecyclerView.setAdapter(adapter);
     }
