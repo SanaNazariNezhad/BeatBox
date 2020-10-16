@@ -91,6 +91,8 @@ public class BeatBoxRepository {
             Log.e(TAG, "this sound has not been played: " + sound.getName());*/
 
         mMediaPlayer.start();
+
+
     }
 
     public void releaseSoundPool() {
