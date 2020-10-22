@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:padding="8dp"
         android:orientation="vertical"
-        tools:context=".controller.fragment.BeatBoxFragment">
+        tools:context=".view.fragment.BeatBoxFragment">
 
         <LinearLayout
             android:layout_width="match_parent"

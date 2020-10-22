@@ -1,4 +1,4 @@
-package org.maktab.beatbox.controller.activity;
+package org.maktab.beatbox.view.activity;
 
 import android.os.Bundle;
 

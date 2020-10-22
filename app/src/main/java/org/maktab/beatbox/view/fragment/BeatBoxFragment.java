@@ -1,4 +1,4 @@
-package org.maktab.beatbox.controller.fragment;
+package org.maktab.beatbox.view.fragment;
 
 import android.os.Bundle;
 
@@ -8,21 +8,19 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.SeekBar;
-import android.widget.TextView;
 
 import org.maktab.beatbox.R;
+import org.maktab.beatbox.adapter.SoundAdapter;
 import org.maktab.beatbox.model.Sound;
 import org.maktab.beatbox.repository.BeatBoxRepository;
 import org.maktab.beatbox.databinding.FragmentBeatBoxBinding;
 import org.maktab.beatbox.databinding.ListItemSoundBinding;
+import org.maktab.beatbox.viewmodel.BeatBoxViewModel;
 
 import java.util.List;
 import java.util.Timer;
@@ -32,8 +30,9 @@ import java.util.concurrent.TimeUnit;
 public class BeatBoxFragment extends Fragment {
 
     public static final String TAG = "BeatBoxFragment";
+    private BeatBoxViewModel mBeatBoxViewModel;
     private FragmentBeatBoxBinding mBinding;
-    private BeatBoxRepository mRepository;
+
     public BeatBoxFragment() {
         // Required empty public constructor
     }
@@ -50,7 +49,7 @@ public class BeatBoxFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
         setRetainInstance(true);
-        mRepository = BeatBoxRepository.getInstance(getContext());
+        mBeatBoxViewModel = new BeatBoxViewModel(getContext());
     }
 
     @Override
@@ -58,7 +57,7 @@ public class BeatBoxFragment extends Fragment {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
 
-        mRepository.releaseSoundPool();
+        mBeatBoxViewModel.releaseSoundPool();
     }
 
 
@@ -98,22 +97,22 @@ public class BeatBoxFragment extends Fragment {
         mBinding.imageBtnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mRepository.playAgain();
+                mBeatBoxViewModel.playAgain();
             }
         });
         mBinding.imageBtnPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mRepository.pause();
+                mBeatBoxViewModel.pause();
             }
         });
     }
 
     private void seekBar() {
-        mBinding.seekBar.setMax(mRepository.getMediaPlayer().getDuration());
-        mBinding.seekBar.setProgress(mRepository.getMediaPlayer().getCurrentPosition());
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(mRepository.getMediaPlayer().getDuration());
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(mRepository.getMediaPlayer().getDuration()) - (minutes * 60);
+        mBinding.seekBar.setMax(mBeatBoxViewModel.getMediaPlayer().getDuration());
+        mBinding.seekBar.setProgress(mBeatBoxViewModel.getMediaPlayer().getCurrentPosition());
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(mBeatBoxViewModel.getMediaPlayer().getDuration());
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(mBeatBoxViewModel.getMediaPlayer().getDuration()) - (minutes * 60);
 
         final String maxTime ="/" + minutes + ":" + seconds;
         mBinding.txtViewTime.setText("0" + maxTime);
@@ -122,9 +121,9 @@ public class BeatBoxFragment extends Fragment {
             @Override
             public void run()
             {
-                mBinding.seekBar.setProgress(mRepository.getMediaPlayer().getCurrentPosition());
-                long minutes = TimeUnit.MILLISECONDS.toMinutes(mRepository.getMediaPlayer().getCurrentPosition());
-                long seconds = TimeUnit.MILLISECONDS.toSeconds(mRepository.getMediaPlayer().getCurrentPosition()) - (minutes * 60);
+                mBinding.seekBar.setProgress(mBeatBoxViewModel.getMediaPlayer().getCurrentPosition());
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(mBeatBoxViewModel.getMediaPlayer().getCurrentPosition());
+                long seconds = TimeUnit.MILLISECONDS.toSeconds(mBeatBoxViewModel.getMediaPlayer().getCurrentPosition()) - (minutes * 60);
                 String currentTime;
                 if (minutes != 0) {
                     currentTime = minutes + ":" + seconds;
@@ -140,7 +139,7 @@ public class BeatBoxFragment extends Fragment {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b)
             {
                 if (b)
-                    mRepository.getMediaPlayer().seekTo(i);
+                    mBeatBoxViewModel.getMediaPlayer().seekTo(i);
             }
 
             @Override
@@ -156,69 +155,8 @@ public class BeatBoxFragment extends Fragment {
     }
 
     private void setupAdapter() {
-        List<Sound> sounds = mRepository.getSounds();
-        SoundAdapter adapter = new SoundAdapter(sounds);
+        List<Sound> sounds = mBeatBoxViewModel.getSounds();
+        SoundAdapter adapter = new SoundAdapter(getContext(),sounds);
         mBinding.recyclerViewBeatBox.setAdapter(adapter);
-    }
-
-    public class SoundHolder extends RecyclerView.ViewHolder {
-
-        private ListItemSoundBinding mListItemSoundBinding;
-
-        public SoundHolder(ListItemSoundBinding listItemSoundBinding) {
-            super(listItemSoundBinding.getRoot());
-
-            mListItemSoundBinding = listItemSoundBinding;
-            mListItemSoundBinding.setSoundHolder(this);
-        }
-
-        public void play(Sound sound) {
-            mRepository.play(sound);
-        }
-
-
-        public void bindSound(Sound sound) {
-            mListItemSoundBinding.setSound(sound);
-        }
-    }
-
-    private class SoundAdapter extends RecyclerView.Adapter<SoundHolder> {
-
-        private List<Sound> mSounds;
-
-        public List<Sound> getSounds() {
-            return mSounds;
-        }
-
-        public void setSounds(List<Sound> sounds) {
-            mSounds = sounds;
-        }
-
-        public SoundAdapter(List<Sound> sounds) {
-            mSounds = sounds;
-        }
-
-        @NonNull
-        @Override
-        public SoundHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            ListItemSoundBinding binding = DataBindingUtil.inflate(
-                    LayoutInflater.from(getContext()),
-                    R.layout.list_item_sound,
-                    parent,
-                    false);
-
-            return new SoundHolder(binding);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull SoundHolder holder, int position) {
-            Sound sound = mSounds.get(position);
-            holder.bindSound(sound);
-        }
-
-        @Override
-        public int getItemCount() {
-            return mSounds.size();
-        }
     }
 }

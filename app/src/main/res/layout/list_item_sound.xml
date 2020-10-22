@@ -4,12 +4,8 @@
 
     <data>
         <variable
-            name="sound"
-            type="org.maktab.beatbox.model.Sound" />
-
-        <variable
-            name="soundHolder"
-            type="org.maktab.beatbox.controller.fragment.BeatBoxFragment.SoundHolder" />
+            name="soundViewModel"
+            type="org.maktab.beatbox.viewmodel.SoundViewModel" />
     </data>
 
     <FrameLayout
@@ -22,8 +18,9 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
-            android:text="@{sound.name}"
-            android:onClick="@{() -> soundHolder.play(sound)}">
+            style="@style/BeatBoxButtonStrong"
+            android:text="@{soundViewModel.title}"
+            android:onClick="@{() -> soundViewModel.playSound()}">
 
         </Button>
     </FrameLayout>

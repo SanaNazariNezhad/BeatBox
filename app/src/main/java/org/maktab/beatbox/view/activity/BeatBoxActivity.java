@@ -1,8 +1,8 @@
-package org.maktab.beatbox.controller.activity;
+package org.maktab.beatbox.view.activity;
 
 import androidx.fragment.app.Fragment;
 
-import org.maktab.beatbox.controller.fragment.BeatBoxFragment;
+import org.maktab.beatbox.view.fragment.BeatBoxFragment;
 
 public class BeatBoxActivity extends SingleFragmentActivity {
 
