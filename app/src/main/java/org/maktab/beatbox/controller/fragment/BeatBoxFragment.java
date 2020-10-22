@@ -19,8 +19,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import org.maktab.beatbox.R;
-import org.maktab.beatbox.controller.model.Sound;
-import org.maktab.beatbox.controller.repository.BeatBoxRepository;
+import org.maktab.beatbox.model.Sound;
+import org.maktab.beatbox.repository.BeatBoxRepository;
 import org.maktab.beatbox.databinding.FragmentBeatBoxBinding;
 import org.maktab.beatbox.databinding.ListItemSoundBinding;
 
@@ -161,27 +161,24 @@ public class BeatBoxFragment extends Fragment {
         mBinding.recyclerViewBeatBox.setAdapter(adapter);
     }
 
-    private class SoundHolder extends RecyclerView.ViewHolder {
+    public class SoundHolder extends RecyclerView.ViewHolder {
 
         private ListItemSoundBinding mListItemSoundBinding;
-        private Sound mSound;
 
         public SoundHolder(ListItemSoundBinding listItemSoundBinding) {
             super(listItemSoundBinding.getRoot());
 
             mListItemSoundBinding = listItemSoundBinding;
-
-            mListItemSoundBinding.buttonBeatBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mRepository.play(mSound);
-                }
-            });
+            mListItemSoundBinding.setSoundHolder(this);
         }
 
+        public void play(Sound sound) {
+            mRepository.play(sound);
+        }
+
+
         public void bindSound(Sound sound) {
-            mSound = sound;
-            mListItemSoundBinding.buttonBeatBox.setText(mSound.getName());
+            mListItemSoundBinding.setSound(sound);
         }
     }
 

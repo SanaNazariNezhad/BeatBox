@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <data>
 
+    <data>
+        <variable
+            name="sound"
+            type="org.maktab.beatbox.model.Sound" />
+
+        <variable
+            name="soundHolder"
+            type="org.maktab.beatbox.controller.fragment.BeatBoxFragment.SoundHolder" />
     </data>
 
     <FrameLayout
@@ -14,7 +21,9 @@
             android:id="@+id/button_beat_box"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_gravity="center">
+            android:layout_gravity="center"
+            android:text="@{sound.name}"
+            android:onClick="@{() -> soundHolder.play(sound)}">
 
         </Button>
     </FrameLayout>
