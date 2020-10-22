@@ -1,66 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="8dp"
-    android:orientation="vertical"
-    tools:context=".controller.fragment.BeatBoxFragment">
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:orientation="vertical"
+        tools:context=".controller.fragment.BeatBoxFragment">
 
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:theme="@style/Widget.AppCompat.SeekBar"
-        android:thumbTint="@color/red"
-        android:progressTint="@color/white"
-        android:layout_weight="5"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/txtView_Time"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:layout_weight="1"/>
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:theme="@style/Widget.AppCompat.SeekBar"
+                android:thumbTint="@color/red"
+                android:progressTint="@color/white"
+                android:layout_weight="5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/txtView_Time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:layout_weight="1" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/imageBtn_pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_media_pause" />
+
+            <ImageButton
+                android:id="@+id/imageBtn_play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_media_play" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_beat_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </androidx.recyclerview.widget.RecyclerView>
 
 
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <ImageButton
-            android:id="@+id/imageBtn_pause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_media_pause" />
-
-        <ImageButton
-            android:id="@+id/imageBtn_play"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_media_play" />
-    </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/recycler_view_beat_box"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    </androidx.recyclerview.widget.RecyclerView>
-
-
-
-</LinearLayout>
+</layout>

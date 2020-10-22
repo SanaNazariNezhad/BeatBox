@@ -3,6 +3,7 @@ package org.maktab.beatbox.controller.fragment;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,6 +21,8 @@ import android.widget.TextView;
 import org.maktab.beatbox.R;
 import org.maktab.beatbox.controller.model.Sound;
 import org.maktab.beatbox.controller.repository.BeatBoxRepository;
+import org.maktab.beatbox.databinding.FragmentBeatBoxBinding;
+import org.maktab.beatbox.databinding.ListItemSoundBinding;
 
 import java.util.List;
 import java.util.Timer;
@@ -29,11 +32,8 @@ import java.util.concurrent.TimeUnit;
 public class BeatBoxFragment extends Fragment {
 
     public static final String TAG = "BeatBoxFragment";
-    private RecyclerView mRecyclerView;
+    private FragmentBeatBoxBinding mBinding;
     private BeatBoxRepository mRepository;
-    private SeekBar mSeekBar;
-    private ImageButton mImageButton_Pause, mImageButton_Play;
-    private TextView mTextViewTime;
     public BeatBoxFragment() {
         // Required empty public constructor
     }
@@ -67,15 +67,18 @@ public class BeatBoxFragment extends Fragment {
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_beat_box, container, false);
+        mBinding = DataBindingUtil.inflate(
+                inflater,
+                R.layout.fragment_beat_box,
+                container,
+                false);
 
-        findViews(view);
         initViews();
         listeners();
         seekBar();
         setupAdapter();
 
-        return view;
+        return mBinding.getRoot();
     }
 
     @Override
@@ -85,29 +88,20 @@ public class BeatBoxFragment extends Fragment {
         Log.d(TAG, "onDestroyView");
     }
 
-
-    private void findViews(View view) {
-        mRecyclerView = view.findViewById(R.id.recycler_view_beat_box);
-        mSeekBar = view.findViewById(R.id.seekBar);
-        mImageButton_Play = view.findViewById(R.id.imageBtn_play);
-        mImageButton_Pause = view.findViewById(R.id.imageBtn_pause);
-        mTextViewTime = view.findViewById(R.id.txtView_Time);
-    }
-
     private void initViews() {
         int rowNumber = getResources().getInteger(R.integer.row_number);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), rowNumber));
+        mBinding.recyclerViewBeatBox.setLayoutManager(new GridLayoutManager(getContext(), rowNumber));
     }
 
     private void listeners() {
 
-        mImageButton_Play.setOnClickListener(new View.OnClickListener() {
+        mBinding.imageBtnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mRepository.playAgain();
             }
         });
-        mImageButton_Pause.setOnClickListener(new View.OnClickListener() {
+        mBinding.imageBtnPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mRepository.pause();
@@ -116,19 +110,19 @@ public class BeatBoxFragment extends Fragment {
     }
 
     private void seekBar() {
-        mSeekBar.setMax(mRepository.getMediaPlayer().getDuration());
-        mSeekBar.setProgress(mRepository.getMediaPlayer().getCurrentPosition());
+        mBinding.seekBar.setMax(mRepository.getMediaPlayer().getDuration());
+        mBinding.seekBar.setProgress(mRepository.getMediaPlayer().getCurrentPosition());
         long minutes = TimeUnit.MILLISECONDS.toMinutes(mRepository.getMediaPlayer().getDuration());
         long seconds = TimeUnit.MILLISECONDS.toSeconds(mRepository.getMediaPlayer().getDuration()) - (minutes * 60);
 
         final String maxTime ="/" + minutes + ":" + seconds;
-        mTextViewTime.setText("0" + maxTime);
+        mBinding.txtViewTime.setText("0" + maxTime);
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run()
             {
-                mSeekBar.setProgress(mRepository.getMediaPlayer().getCurrentPosition());
+                mBinding.seekBar.setProgress(mRepository.getMediaPlayer().getCurrentPosition());
                 long minutes = TimeUnit.MILLISECONDS.toMinutes(mRepository.getMediaPlayer().getCurrentPosition());
                 long seconds = TimeUnit.MILLISECONDS.toSeconds(mRepository.getMediaPlayer().getCurrentPosition()) - (minutes * 60);
                 String currentTime;
@@ -138,10 +132,10 @@ public class BeatBoxFragment extends Fragment {
                 else {
                     currentTime = "" + seconds;
                 }
-                mTextViewTime.setText(currentTime + maxTime);
+                mBinding.txtViewTime.setText(currentTime + maxTime);
             }
         },0,1000);
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mBinding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b)
             {
@@ -164,19 +158,20 @@ public class BeatBoxFragment extends Fragment {
     private void setupAdapter() {
         List<Sound> sounds = mRepository.getSounds();
         SoundAdapter adapter = new SoundAdapter(sounds);
-        mRecyclerView.setAdapter(adapter);
+        mBinding.recyclerViewBeatBox.setAdapter(adapter);
     }
 
     private class SoundHolder extends RecyclerView.ViewHolder {
 
-        private Button mButton;
+        private ListItemSoundBinding mListItemSoundBinding;
         private Sound mSound;
 
-        public SoundHolder(@NonNull View itemView) {
-            super(itemView);
+        public SoundHolder(ListItemSoundBinding listItemSoundBinding) {
+            super(listItemSoundBinding.getRoot());
 
-            mButton = itemView.findViewById(R.id.button_beat_box);
-            mButton.setOnClickListener(new View.OnClickListener() {
+            mListItemSoundBinding = listItemSoundBinding;
+
+            mListItemSoundBinding.buttonBeatBox.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mRepository.play(mSound);
@@ -186,7 +181,7 @@ public class BeatBoxFragment extends Fragment {
 
         public void bindSound(Sound sound) {
             mSound = sound;
-            mButton.setText(mSound.getName());
+            mListItemSoundBinding.buttonBeatBox.setText(mSound.getName());
         }
     }
 
@@ -209,10 +204,13 @@ public class BeatBoxFragment extends Fragment {
         @NonNull
         @Override
         public SoundHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(getContext())
-                    .inflate(R.layout.list_item_sound, parent, false);
+            ListItemSoundBinding binding = DataBindingUtil.inflate(
+                    LayoutInflater.from(getContext()),
+                    R.layout.list_item_sound,
+                    parent,
+                    false);
 
-            return new SoundHolder(view);
+            return new SoundHolder(binding);
         }
 
         @Override
