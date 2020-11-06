@@ -18,8 +18,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import org.maktab.beatbox.R;
-import org.maktab.beatbox.controller.model.Sound;
-import org.maktab.beatbox.controller.repository.BeatBoxRepository;
+import org.maktab.beatbox.model.Sound;
+import org.maktab.beatbox.repository.BeatBoxRepository;
 
 import java.util.List;
 import java.util.Timer;
@@ -179,7 +179,7 @@ public class BeatBoxFragment extends Fragment {
             mButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mRepository.play(mSound);
+                    mRepository.loadMusic(mSound.getName());
                 }
             });
         }

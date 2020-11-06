@@ -1,4 +1,4 @@
-package org.maktab.beatbox.controller.model;
+package org.maktab.beatbox.model;
 
 import android.net.Uri;
 
@@ -37,11 +37,6 @@ public class Sound {
 
 
     public Sound(String assetPath) {
-        /*
-            Example:
-            assetPath: sample_sounds/65_cjipie.wav
-            name = 65_cjipie
-        */
 
         mAssetPath = assetPath;
         String[] sections = assetPath.split(File.separator);
