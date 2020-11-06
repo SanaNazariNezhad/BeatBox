@@ -33,7 +33,7 @@ public class SoundViewModel extends BaseObservable {
     }
 
     public void playSound() {
-        mRepository.play(mSound);
+        mRepository.loadMusic(mSound.getName());
     }
 }
 
