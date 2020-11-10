@@ -170,12 +170,14 @@ public class BeatBoxFragment extends Fragment {
     private class SoundHolder extends RecyclerView.ViewHolder {
 
         private Button mButton;
+        private TextView mTextMusicName;
         private Sound mSound;
 
         public SoundHolder(@NonNull View itemView) {
             super(itemView);
 
             mButton = itemView.findViewById(R.id.button_beat_box);
+            mTextMusicName = itemView.findViewById(R.id.txt_music_name);
             mButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -186,7 +188,7 @@ public class BeatBoxFragment extends Fragment {
 
         public void bindSound(Sound sound) {
             mSound = sound;
-            mButton.setText(mSound.getName());
+            mTextMusicName.setText(mSound.getName());
         }
     }
 
