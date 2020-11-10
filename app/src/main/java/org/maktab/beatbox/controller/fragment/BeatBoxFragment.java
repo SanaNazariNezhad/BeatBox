@@ -1,5 +1,8 @@
 package org.maktab.beatbox.controller.fragment;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -169,7 +172,7 @@ public class BeatBoxFragment extends Fragment {
 
     private class SoundHolder extends RecyclerView.ViewHolder {
 
-        private Button mButton;
+        private ImageButton mButton;
         private TextView mTextMusicName;
         private Sound mSound;
 
@@ -189,6 +192,8 @@ public class BeatBoxFragment extends Fragment {
         public void bindSound(Sound sound) {
             mSound = sound;
             mTextMusicName.setText(mSound.getName());
+            mButton.setImageDrawable(sound.getDrawable());
+//            mButton.setImageBitmap(sound.getBitmap());
         }
     }
 

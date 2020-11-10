@@ -3,6 +3,7 @@ package org.maktab.beatbox.repository;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.util.Log;
 
@@ -10,6 +11,7 @@ import org.maktab.beatbox.model.Sound;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class BeatBoxRepository {
 
     public static final String TAG = "BeatBox";
     private static String ASSET_FOLDER = "sample_musics";
+    private static String ASSET_FOLDER_IMAGE = "sample_musics_image";
     private static BeatBoxRepository sInstance;
 
     private Context mContext;
@@ -46,9 +49,12 @@ public class BeatBoxRepository {
         AssetManager assetManager = mContext.getAssets();
         try {
             String[] fileNames = assetManager.list(ASSET_FOLDER);
-            for (String fileName : fileNames) {
-                String assetPath = ASSET_FOLDER + File.separator + fileName;
+            String[] fileNamesImage = assetManager.list(ASSET_FOLDER_IMAGE);
+            for (int i = 0; i < fileNames.length; i++) {
+                String assetPath = ASSET_FOLDER + File.separator + fileNames[i];
+                String assetPathImage = ASSET_FOLDER_IMAGE + File.separator + fileNamesImage[i];
                 Sound sound = new Sound(assetPath);
+                sound.setImageAssetPath(assetPathImage);
                 loadInMediaPlayer(assetManager, sound);
                 mSounds.add(sound);
             }
@@ -64,7 +70,7 @@ public class BeatBoxRepository {
             mMediaPlayer.stop();
         AssetManager assetManager = mContext.getAssets();
         try {
-            for (Sound sound : mSounds){
+            for (Sound sound : mSounds) {
                 if (sound.getName().equalsIgnoreCase(name)) {
                     loadInMediaPlayer(assetManager, sound);
                     play(sound);
@@ -81,6 +87,17 @@ public class BeatBoxRepository {
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
         mMediaPlayer.prepare();
+        InputStream stream = assetManager.open(sound.getImageAssetPath());
+        // load image as Drawable
+        Drawable drawable = Drawable.createFromStream(stream, null);
+        sound.setDrawable(drawable);
+        /*AssetFileDescriptor afdImage = assetManager.openFd(sound.getImageAssetPath());
+        MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
+        metadataRetriever.setDataSource(afdImage.getFileDescriptor(),afdImage.getStartOffset(),afdImage.getLength());
+//        metadataRetriever.setDataSource(sound.getImageAssetPath());
+        byte [] data = metadataRetriever.getEmbeddedPicture();
+        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+        sound.setBitmap(bitmap);*/
     }
 
     //it runs on demand when user want to hear the sound

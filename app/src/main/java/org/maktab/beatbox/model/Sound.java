@@ -1,12 +1,31 @@
 package org.maktab.beatbox.model;
 
-import android.net.Uri;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 
 import java.io.File;
 
 public class Sound {
     private String mName;
     private String mAssetPath;
+    private String mImageAssetPath;
+    private Drawable mDrawable;
+
+    public Drawable getDrawable() {
+        return mDrawable;
+    }
+
+    public void setDrawable(Drawable drawable) {
+        mDrawable = drawable;
+    }
+
+    public String getImageAssetPath() {
+        return mImageAssetPath;
+    }
+
+    public void setImageAssetPath(String imageAssetPath) {
+        mImageAssetPath = imageAssetPath;
+    }
 
     //it is the id of sound loaded in sound pool.
     private Integer mSoundId;
