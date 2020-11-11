@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.drawable.Drawable;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.util.Log;
 
@@ -49,17 +50,30 @@ public class BeatBoxRepository {
     //it runs on constructor at the start of repository
     public void loadSounds() {
         AssetManager assetManager = mContext.getAssets();
+        MediaMetadataRetriever metaRetriver = new MediaMetadataRetriever();
         try {
             String[] fileNames = assetManager.list(ASSET_FOLDER);
             String[] fileNamesImage = assetManager.list(ASSET_FOLDER_IMAGE);
             for (int i = 0; i < fileNames.length; i++) {
                 String assetPath = ASSET_FOLDER + File.separator + fileNames[i];
                 String assetPathImage = ASSET_FOLDER_IMAGE + File.separator + fileNamesImage[i];
+                AssetFileDescriptor afd = mContext.getAssets().openFd(assetPath);
+                metaRetriver.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+
+                String title = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                String artist = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                String album = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+                afd.close();
                 Sound sound = new Sound(assetPath);
+                sound.setTitle(title);
+                sound.setArtist(artist);
+                sound.setAlbum(album);
                 sound.setImageAssetPath(assetPathImage);
                 loadInMediaPlayer(assetManager, sound);
                 mSounds.add(sound);
             }
+
+            metaRetriver.release();
 
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -93,37 +107,14 @@ public class BeatBoxRepository {
         // load image as Drawable
         Drawable drawable = Drawable.createFromStream(stream, null);
         sound.setDrawable(drawable);
-        /*AssetFileDescriptor afdImage = assetManager.openFd(sound.getImageAssetPath());
-        MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
-        metadataRetriever.setDataSource(afdImage.getFileDescriptor(),afdImage.getStartOffset(),afdImage.getLength());
-//        metadataRetriever.setDataSource(sound.getImageAssetPath());
-        byte [] data = metadataRetriever.getEmbeddedPicture();
-        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-        sound.setBitmap(bitmap);*/
     }
 
     //it runs on demand when user want to hear the sound
     public void play(Sound sound) {
-        /*if (mIndex == -1) {
-            for (int i = 0; i < mSounds.size(); i++) {
-                if (mSounds.get(i).equals(sound)) {
-                    mIndex = i;
-                    break;
-                }
-            }
-        } else
-            mIndex += 1;*/
+
         if (sound == null)
             return;
-        /*mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                *//*if (mIndex != mSounds.size() - 1) {
-                    int number = mIndex + 1;
-                }*//*
-                play(mSounds.get(1));
-            }
-        });*/
+
         mMediaPlayer.start();
 
 

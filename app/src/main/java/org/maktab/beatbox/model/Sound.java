@@ -11,6 +11,34 @@ public class Sound {
     private String mAssetPath;
     private String mImageAssetPath;
     private Drawable mDrawable;
+    private String mTitle;
+    private String mArtist;
+
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public void setTitle(String title) {
+        mTitle = title;
+    }
+
+    public String getArtist() {
+        return mArtist;
+    }
+
+    public void setArtist(String artist) {
+        mArtist = artist;
+    }
+
+    public String getAlbum() {
+        return mAlbum;
+    }
+
+    public void setAlbum(String album) {
+        mAlbum = album;
+    }
+
+    private String mAlbum;
 
     public Drawable getDrawable() {
         return mDrawable;

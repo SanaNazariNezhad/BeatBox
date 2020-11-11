@@ -238,7 +238,7 @@ public class BeatBoxFragment extends Fragment {
 
         public void bindSound(Sound sound) {
             mSound = sound;
-            mTextMusicName.setText(mSound.getName());
+            mTextMusicName.setText(mSound.getArtist());
             mButton.setImageDrawable(sound.getDrawable());
         }
     }
