@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 import java.io.File;
+import java.util.Objects;
 
 public class Sound {
     private String mName;
@@ -66,5 +67,22 @@ public class Sound {
     }
 
     public Sound() {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Sound sound = (Sound) o;
+        return Objects.equals(mName, sound.mName) &&
+                Objects.equals(mAssetPath, sound.mAssetPath) &&
+                Objects.equals(mImageAssetPath, sound.mImageAssetPath) &&
+                Objects.equals(mDrawable, sound.mDrawable) &&
+                Objects.equals(mSoundId, sound.mSoundId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mName, mAssetPath, mImageAssetPath, mDrawable, mSoundId);
     }
 }

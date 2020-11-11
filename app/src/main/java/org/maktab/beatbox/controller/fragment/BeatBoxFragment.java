@@ -3,10 +3,14 @@ package org.maktab.beatbox.controller.fragment;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -34,9 +39,14 @@ public class BeatBoxFragment extends Fragment {
     public static final String TAG = "BeatBoxFragment";
     private RecyclerView mRecyclerView;
     private BeatBoxRepository mRepository;
+    private List<Sound> mSounds;
     private SeekBar mSeekBar;
     private ImageButton mImageButton_Pause, mImageButton_Play;
     private TextView mTextViewTime;
+    private ImageView mImageViewSeekBar;
+    private MutableLiveData<String> mLiveDataTime;
+    private String mEndTime;
+
     public BeatBoxFragment() {
         // Required empty public constructor
     }
@@ -54,6 +64,8 @@ public class BeatBoxFragment extends Fragment {
         Log.d(TAG, "onCreate");
         setRetainInstance(true);
         mRepository = BeatBoxRepository.getInstance(getContext());
+        mSounds = mRepository.getSounds();
+        mLiveDataTime = new MutableLiveData<>();
     }
 
     @Override
@@ -76,6 +88,7 @@ public class BeatBoxFragment extends Fragment {
         initViews();
         listeners();
         seekBar();
+        setLiveDataObservers();
         setupAdapter();
 
         return view;
@@ -95,11 +108,13 @@ public class BeatBoxFragment extends Fragment {
         mImageButton_Play = view.findViewById(R.id.imageBtn_play);
         mImageButton_Pause = view.findViewById(R.id.imageBtn_pause);
         mTextViewTime = view.findViewById(R.id.txtView_Time);
+        mImageViewSeekBar = view.findViewById(R.id.imageSeekBar);
     }
 
     private void initViews() {
         int rowNumber = getResources().getInteger(R.integer.row_number);
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), rowNumber));
+        mSeekBar.setEnabled(false);
     }
 
     private void listeners() {
@@ -118,36 +133,44 @@ public class BeatBoxFragment extends Fragment {
         });
     }
 
+    private void setLiveDataObservers() {
+        mLiveDataTime.observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String time) {
+                mTextViewTime.setText(time);
+            }
+        });
+    }
+
     private void seekBar() {
         mSeekBar.setMax(mRepository.getMediaPlayer().getDuration());
         mSeekBar.setProgress(mRepository.getMediaPlayer().getCurrentPosition());
         long minutes = TimeUnit.MILLISECONDS.toMinutes(mRepository.getMediaPlayer().getDuration());
         long seconds = TimeUnit.MILLISECONDS.toSeconds(mRepository.getMediaPlayer().getDuration()) - (minutes * 60);
 
-        final String maxTime ="/" + minutes + ":" + seconds;
+        final String maxTime = "/" + minutes + ":" + seconds;
         mTextViewTime.setText("0" + maxTime);
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
-            public void run()
-            {
+            public void run() {
                 mSeekBar.setProgress(mRepository.getMediaPlayer().getCurrentPosition());
                 long minutes = TimeUnit.MILLISECONDS.toMinutes(mRepository.getMediaPlayer().getCurrentPosition());
                 long seconds = TimeUnit.MILLISECONDS.toSeconds(mRepository.getMediaPlayer().getCurrentPosition()) - (minutes * 60);
                 String currentTime;
                 if (minutes != 0) {
                     currentTime = minutes + ":" + seconds;
-                }
-                else {
+                } else {
                     currentTime = "" + seconds;
                 }
-                mTextViewTime.setText(currentTime + maxTime);
+                String time = currentTime + maxTime;
+                mLiveDataTime.postValue(time);
+//                mTextViewTime.setText(currentTime + maxTime);
             }
-        },0,1000);
+        }, 0, 1000);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b)
-            {
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if (b)
                     mRepository.getMediaPlayer().seekTo(i);
             }
@@ -185,6 +208,30 @@ public class BeatBoxFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     mRepository.loadMusic(mSound.getName());
+                    mSeekBar.setEnabled(true);
+                    mImageViewSeekBar.setImageDrawable(mSound.getDrawable());
+                    MediaPlayer mediaPlayer = mRepository.getMediaPlayer();
+                   /* mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mediaPlayer) {
+                            int index = -1;
+                            int nextMusic = -1;
+                            for (int i = 0; i < mSounds.size(); i++) {
+                                if (mSounds.get(i).equals(mSound)) {
+                                    index = i;
+                                    nextMusic = i + 1;
+                                }
+                            }
+                            if (index != mSounds.size() - 1) {
+                                mRepository.loadMusic(mSounds.get(nextMusic).getName());
+                                mImageViewSeekBar.setImageDrawable(mSounds.get(nextMusic).getDrawable());
+                            }
+                            else {
+                                mRepository.loadMusic(mSounds.get(0).getName());
+                                mImageViewSeekBar.setImageDrawable(mSounds.get(0).getDrawable());
+                            }
+                        }
+                    });*/
                 }
             });
         }
@@ -193,7 +240,6 @@ public class BeatBoxFragment extends Fragment {
             mSound = sound;
             mTextMusicName.setText(mSound.getName());
             mButton.setImageDrawable(sound.getDrawable());
-//            mButton.setImageBitmap(sound.getBitmap());
         }
     }
 

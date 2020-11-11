@@ -25,6 +25,7 @@ public class BeatBoxRepository {
     private Context mContext;
     private MediaPlayer mMediaPlayer;
     private List<Sound> mSounds = new ArrayList<>();
+    private int mIndex;
     private Boolean mFlagPlay;
 
     public static BeatBoxRepository getInstance(Context context) {
@@ -41,6 +42,7 @@ public class BeatBoxRepository {
     private BeatBoxRepository(Context context) {
         mContext = context.getApplicationContext();
         loadSounds();
+        mIndex = -1;
         mFlagPlay = false;
     }
 
@@ -102,8 +104,26 @@ public class BeatBoxRepository {
 
     //it runs on demand when user want to hear the sound
     public void play(Sound sound) {
+        /*if (mIndex == -1) {
+            for (int i = 0; i < mSounds.size(); i++) {
+                if (mSounds.get(i).equals(sound)) {
+                    mIndex = i;
+                    break;
+                }
+            }
+        } else
+            mIndex += 1;*/
         if (sound == null)
             return;
+        /*mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                *//*if (mIndex != mSounds.size() - 1) {
+                    int number = mIndex + 1;
+                }*//*
+                play(mSounds.get(1));
+            }
+        });*/
         mMediaPlayer.start();
 
 

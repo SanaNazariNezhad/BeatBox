@@ -8,6 +8,7 @@
 
         <item name="android:colorBackground">@color/white</item>
         <item name="buttonStyle">@style/BeatBoxButtonStrong</item>
+        <item name="imageButtonStyle">@style/SeekBarLayout</item>
     </style>
 
     <style name="BeatBoxButton" parent="Widget.AppCompat.Button">
@@ -17,6 +18,14 @@
 
     <style name="BeatBoxButtonStrong" parent="BeatBoxButton">
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SeekBarLayout" parent="Widget.Support.CoordinatorLayout">
+        <item name="android:background">@drawable/seekbar_layout</item>
+    </style>
+
+    <style name="SeekBarImage">
+        <item name="android:background">@drawable/button_beat_box</item>
     </style>
 
     <!--<style name="BeatBoxButton.Strong">
