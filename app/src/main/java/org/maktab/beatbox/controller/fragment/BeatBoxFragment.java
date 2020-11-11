@@ -1,29 +1,28 @@
 package org.maktab.beatbox.controller.fragment;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.maktab.beatbox.R;
 import org.maktab.beatbox.model.Sound;
@@ -35,6 +34,8 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class BeatBoxFragment extends Fragment {
+
+    public static final int MY_PERMISSION_REQUEST = 1;
 
     public static final String TAG = "BeatBoxFragment";
     private RecyclerView mRecyclerView;
@@ -85,13 +86,54 @@ public class BeatBoxFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_beat_box, container, false);
 
         findViews(view);
+        checkPermission();
         initViews();
         listeners();
-        seekBar();
+//        seekBar();
         setLiveDataObservers();
         setupAdapter();
 
         return view;
+    }
+
+    private void checkPermission() {
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.READ_EXTERNAL_STORAGE) != getActivity().getPackageManager().PERMISSION_GRANTED){
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
+            } else {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},MY_PERMISSION_REQUEST);
+            }
+        } else {
+            doStuff();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case MY_PERMISSION_REQUEST:{
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    if (ContextCompat.checkSelfPermission(getActivity(),
+                            Manifest.permission.READ_EXTERNAL_STORAGE)==PackageManager.PERMISSION_GRANTED){
+                        Toast.makeText(getActivity(),"Permission granted!",Toast.LENGTH_SHORT).show();
+
+                        doStuff();
+                    }
+                }else {
+                    Toast.makeText(getActivity(),"No Permission granted!",Toast.LENGTH_SHORT).show();
+                    getActivity().finish();
+                }
+                return;
+            }
+        }
+    }
+
+    private void doStuff() {
+        mRepository.getSongFromExternal();
     }
 
     @Override
@@ -207,7 +249,7 @@ public class BeatBoxFragment extends Fragment {
             mButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mRepository.loadMusic(mSound.getName());
+                    mRepository.loadMusic(mSound.getTitle());
                     mSeekBar.setEnabled(true);
                     mImageViewSeekBar.setImageDrawable(mSound.getDrawable());
                     MediaPlayer mediaPlayer = mRepository.getMediaPlayer();
@@ -238,7 +280,7 @@ public class BeatBoxFragment extends Fragment {
 
         public void bindSound(Sound sound) {
             mSound = sound;
-            mTextMusicName.setText(mSound.getName());
+            mTextMusicName.setText(mSound.getTitle());
             mButton.setImageDrawable(sound.getDrawable());
         }
     }

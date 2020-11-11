@@ -8,9 +8,75 @@ import java.util.Objects;
 
 public class Sound {
     private String mName;
+    private String mTitle;
+    private String mArtist;
+    private String mAlbum;
+    private long mId,mAlbumId,mArtistId;
+    private int mDuration,mTrackNumber;
     private String mAssetPath;
     private String mImageAssetPath;
     private Drawable mDrawable;
+
+    public Sound(String title, String artist, String album) {
+        mTitle = title;
+        mArtist = artist;
+        mAlbum = album;
+    }
+
+    public void setTitle(String title) {
+        mTitle = title;
+    }
+
+    public void setArtist(String artist) {
+        mArtist = artist;
+    }
+
+    public void setAlbum(String album) {
+        mAlbum = album;
+    }
+
+    public Sound(long id, long albumId, long artistId, String title, String artist, String album, int duration, int trackNumber) {
+        mId = id;
+        mAlbumId = albumId;
+        mArtistId = artistId;
+        mTitle = title;
+        mArtist = artist;
+        mAlbum = album;
+        mDuration = duration;
+        mTrackNumber = trackNumber;
+    }
+
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public String getArtist() {
+        return mArtist;
+    }
+
+    public String getAlbum() {
+        return mAlbum;
+    }
+
+    public long getId() {
+        return mId;
+    }
+
+    public long getAlbumId() {
+        return mAlbumId;
+    }
+
+    public long getArtistId() {
+        return mArtistId;
+    }
+
+    public int getDuration() {
+        return mDuration;
+    }
+
+    public int getTrackNumber() {
+        return mTrackNumber;
+    }
 
     public Drawable getDrawable() {
         return mDrawable;
