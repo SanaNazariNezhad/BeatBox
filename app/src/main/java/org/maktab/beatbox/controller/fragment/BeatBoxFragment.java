@@ -209,7 +209,10 @@ public class BeatBoxFragment extends Fragment {
                 public void onClick(View v) {
                     mRepository.loadMusic(mSound.getName());
                     mSeekBar.setEnabled(true);
-                    mImageViewSeekBar.setImageDrawable(mSound.getDrawable());
+                    if (mSound.getBitmap()!=null)
+                        mImageViewSeekBar.setImageBitmap(mSound.getBitmap());
+                    else
+                        mImageViewSeekBar.setImageDrawable(getResources().getDrawable(R.drawable.ic_music));
                     MediaPlayer mediaPlayer = mRepository.getMediaPlayer();
                    /* mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         @Override
@@ -239,7 +242,10 @@ public class BeatBoxFragment extends Fragment {
         public void bindSound(Sound sound) {
             mSound = sound;
             mTextMusicName.setText(mSound.getArtist());
-            mButton.setImageDrawable(sound.getDrawable());
+            if (sound.getBitmap()!=null)
+                mButton.setImageBitmap(sound.getBitmap());
+            else
+                mButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_music));
         }
     }
 

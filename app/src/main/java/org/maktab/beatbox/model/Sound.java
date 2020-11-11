@@ -9,10 +9,19 @@ import java.util.Objects;
 public class Sound {
     private String mName;
     private String mAssetPath;
-    private String mImageAssetPath;
-    private Drawable mDrawable;
+    private Bitmap mBitmap;
     private String mTitle;
     private String mArtist;
+    private String mAlbum;
+
+
+    public Bitmap getBitmap() {
+        return mBitmap;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        mBitmap = bitmap;
+    }
 
     public String getTitle() {
         return mTitle;
@@ -38,27 +47,6 @@ public class Sound {
         mAlbum = album;
     }
 
-    private String mAlbum;
-
-    public Drawable getDrawable() {
-        return mDrawable;
-    }
-
-    public void setDrawable(Drawable drawable) {
-        mDrawable = drawable;
-    }
-
-    public String getImageAssetPath() {
-        return mImageAssetPath;
-    }
-
-    public void setImageAssetPath(String imageAssetPath) {
-        mImageAssetPath = imageAssetPath;
-    }
-
-    //it is the id of sound loaded in sound pool.
-    private Integer mSoundId;
-
     public String getName() {
         return mName;
     }
@@ -74,15 +62,6 @@ public class Sound {
     public void setAssetPath(String assetPath) {
         mAssetPath = assetPath;
     }
-
-    public Integer getSoundId() {
-        return mSoundId;
-    }
-
-    public void setSoundId(Integer soundId) {
-        mSoundId = soundId;
-    }
-
 
     public Sound(String assetPath) {
 
@@ -104,13 +83,14 @@ public class Sound {
         Sound sound = (Sound) o;
         return Objects.equals(mName, sound.mName) &&
                 Objects.equals(mAssetPath, sound.mAssetPath) &&
-                Objects.equals(mImageAssetPath, sound.mImageAssetPath) &&
-                Objects.equals(mDrawable, sound.mDrawable) &&
-                Objects.equals(mSoundId, sound.mSoundId);
+                Objects.equals(mBitmap, sound.mBitmap) &&
+                Objects.equals(mTitle, sound.mTitle) &&
+                Objects.equals(mArtist, sound.mArtist) &&
+                Objects.equals(mAlbum, sound.mAlbum);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mName, mAssetPath, mImageAssetPath, mDrawable, mSoundId);
+        return Objects.hash(mName, mAssetPath, mBitmap, mTitle, mArtist, mAlbum);
     }
 }

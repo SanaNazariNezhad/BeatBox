@@ -3,6 +3,8 @@ package org.maktab.beatbox.repository;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -20,7 +22,6 @@ public class BeatBoxRepository {
 
     public static final String TAG = "BeatBox";
     private static String ASSET_FOLDER = "sample_musics";
-    private static String ASSET_FOLDER_IMAGE = "sample_musics_image";
     private static BeatBoxRepository sInstance;
 
     private Context mContext;
@@ -50,30 +51,40 @@ public class BeatBoxRepository {
     //it runs on constructor at the start of repository
     public void loadSounds() {
         AssetManager assetManager = mContext.getAssets();
-        MediaMetadataRetriever metaRetriver = new MediaMetadataRetriever();
+        MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+        Bitmap mBitmap;
         try {
             String[] fileNames = assetManager.list(ASSET_FOLDER);
-            String[] fileNamesImage = assetManager.list(ASSET_FOLDER_IMAGE);
             for (int i = 0; i < fileNames.length; i++) {
                 String assetPath = ASSET_FOLDER + File.separator + fileNames[i];
-                String assetPathImage = ASSET_FOLDER_IMAGE + File.separator + fileNamesImage[i];
                 AssetFileDescriptor afd = mContext.getAssets().openFd(assetPath);
-                metaRetriver.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                metaRetriever.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
 
-                String title = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-                String artist = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                String album = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+                String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                String album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+                byte [] data = metaRetriever.getEmbeddedPicture();
+                if(data != null)
+                {
+                    mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+
+                }
+                else
+                {
+                    mBitmap = null;
+                }
+
                 afd.close();
                 Sound sound = new Sound(assetPath);
                 sound.setTitle(title);
                 sound.setArtist(artist);
                 sound.setAlbum(album);
-                sound.setImageAssetPath(assetPathImage);
+                sound.setBitmap(mBitmap);
                 loadInMediaPlayer(assetManager, sound);
                 mSounds.add(sound);
             }
 
-            metaRetriver.release();
+            metaRetriever.release();
 
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -103,10 +114,6 @@ public class BeatBoxRepository {
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
         mMediaPlayer.prepare();
-        InputStream stream = assetManager.open(sound.getImageAssetPath());
-        // load image as Drawable
-        Drawable drawable = Drawable.createFromStream(stream, null);
-        sound.setDrawable(drawable);
     }
 
     //it runs on demand when user want to hear the sound
