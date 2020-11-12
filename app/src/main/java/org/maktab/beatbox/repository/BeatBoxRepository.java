@@ -5,7 +5,6 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.util.Log;
@@ -14,7 +13,6 @@ import org.maktab.beatbox.model.Sound;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,12 +21,22 @@ public class BeatBoxRepository {
     public static final String TAG = "BeatBox";
     private static String ASSET_FOLDER = "sample_musics";
     private static BeatBoxRepository sInstance;
-
     private Context mContext;
     private MediaPlayer mMediaPlayer;
     private List<Sound> mSounds = new ArrayList<>();
     private int mIndex;
     private Boolean mFlagPlay;
+
+    private Sound mPlayingSound;
+
+
+    public Sound getPlayingSound() {
+        return mPlayingSound;
+    }
+
+    public void setPlayingSound(Sound playingSound) {
+        this.mPlayingSound = playingSound;
+    }
 
     public static BeatBoxRepository getInstance(Context context) {
         if (sInstance == null)
@@ -123,11 +131,12 @@ public class BeatBoxRepository {
             return;
 
         mMediaPlayer.start();
+        setPlayingSound(sound);
 
 
     }
 
-    public void releaseSoundPool() {
+    public void release() {
         mMediaPlayer.release();
     }
 
