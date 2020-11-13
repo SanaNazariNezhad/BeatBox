@@ -86,18 +86,7 @@
                 android:layout_toRightOf="@id/cardViewSeekBar" />
 
             <ImageButton
-                android:id="@+id/imageBtn_pause"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toStartOf="@id/imageBtn_play"
-                android:layout_alignTop="@id/cardViewSeekBar"
-                android:layout_alignBottom="@id/cardViewSeekBar"
-                android:layout_gravity="center"
-                style="@style/Widget.AppCompat.ActionButton.CloseMode"
-                android:src="@android:drawable/ic_media_pause" />
-
-            <ImageButton
-                android:id="@+id/imageBtn_play"
+                android:id="@+id/imageBtn_next_seekbar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
@@ -105,7 +94,29 @@
                 android:layout_alignBottom="@id/cardViewSeekBar"
                 android:layout_gravity="center"
                 style="@style/Widget.AppCompat.ActionButton.CloseMode"
-                android:src="@android:drawable/ic_media_play" />
+                android:src="@drawable/ic_skip_next" />
+            <ImageButton
+                android:id="@+id/imageBtn_pause_seekbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/imageBtn_next_seekbar"
+                android:layout_alignTop="@id/cardViewSeekBar"
+                android:layout_alignBottom="@id/cardViewSeekBar"
+                android:layout_gravity="center"
+                style="@style/Widget.AppCompat.ActionButton.CloseMode"
+                android:src="@drawable/ic_pause" />
+            <ImageButton
+                android:id="@+id/imageBtn_prev_seekbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/imageBtn_pause_seekbar"
+                android:layout_alignTop="@id/cardViewSeekBar"
+                android:layout_alignBottom="@id/cardViewSeekBar"
+                android:layout_gravity="center"
+                style="@style/Widget.AppCompat.ActionButton.CloseMode"
+                android:src="@drawable/ic_skip_previous" />
+
+
 
         </RelativeLayout>
     </LinearLayout>

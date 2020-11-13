@@ -30,6 +30,16 @@ public class BeatBoxRepository {
     private int mIndex;
     private Boolean mFlagPlay;
     private MutableLiveData<Sound> mLiveDataPlayingSound;
+    private Sound mPlayingSound;
+    private boolean isMusicPlaying;
+
+    public boolean isMusicPlaying() {
+        return isMusicPlaying;
+    }
+
+    public Sound getPlayingSound() {
+        return mPlayingSound;
+    }
 
     public MutableLiveData<Sound> getLiveDataPlayingSound() {
         return mLiveDataPlayingSound;
@@ -52,6 +62,7 @@ public class BeatBoxRepository {
         mIndex = -1;
         mFlagPlay = false;
         mLiveDataPlayingSound = new MutableLiveData<>();
+        isMusicPlaying = false;
     }
 
     //it runs on constructor at the start of repository
@@ -97,14 +108,14 @@ public class BeatBoxRepository {
         }
     }
 
-    public void loadMusic(String name) {
+    public void loadMusic(UUID uuid) {
         mFlagPlay = true;
         if (mMediaPlayer.isPlaying())
             mMediaPlayer.stop();
         AssetManager assetManager = mContext.getAssets();
         try {
             for (Sound sound : mSounds) {
-                if (sound.getName().equalsIgnoreCase(name)) {
+                if (sound.getSoundId().equals(uuid)) {
                     loadInMediaPlayer(assetManager, sound);
                     play(sound);
                 }
@@ -124,14 +135,49 @@ public class BeatBoxRepository {
         return result;
     }
 
+    private int getSoundIndex(UUID uuid){
+        int index = -1;
+        for (int i = 0; i <mSounds.size() ; i++) {
+            if (mSounds.get(i).getSoundId().equals(uuid))
+                index = i;
+        }
+        return index;
+    }
+
+    public void nextSound(Sound sound){
+        int index = getSoundIndex(sound.getSoundId());
+        if (index == (mSounds.size()-1)) {
+            loadMusic(mSounds.get(0).getSoundId());
+            mPlayingSound = mSounds.get(0);
+        }
+        else {
+            loadMusic(mSounds.get((index + 1)).getSoundId());
+            mPlayingSound = mSounds.get((index + 1));
+        }
+        isMusicPlaying = true;
+    }
+
+    public void previousSound(Sound sound) {
+        int index = getSoundIndex(sound.getSoundId());
+        if (index == 0) {
+            loadMusic(mSounds.get((mSounds.size()-1)).getSoundId());
+            mPlayingSound = mSounds.get((mSounds.size()-1));
+        }
+        else {
+            loadMusic(mSounds.get((index - 1)).getSoundId());
+            mPlayingSound = mSounds.get((index - 1));
+        }
+        isMusicPlaying = true;
+    }
+
     private void loadInMediaPlayer(AssetManager assetManager, Sound sound) throws IOException {
         AssetFileDescriptor afd = assetManager.openFd(sound.getAssetPath());
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
         mMediaPlayer.prepare();
     }
-
     //it runs on demand when user want to hear the sound
+
     public void play(Sound sound) {
 
         if (sound == null)
@@ -139,6 +185,7 @@ public class BeatBoxRepository {
 
         mMediaPlayer.start();
         mLiveDataPlayingSound.postValue(sound);
+        isMusicPlaying = true;
     }
 
     public void release() {
@@ -147,11 +194,13 @@ public class BeatBoxRepository {
 
     public void pause() {
         mMediaPlayer.pause();
+        isMusicPlaying = false;
     }
 
     public void playAgain() {
         if (mFlagPlay)
             mMediaPlayer.start();
+        isMusicPlaying = true;
     }
 
     public void seekTo(int position) {

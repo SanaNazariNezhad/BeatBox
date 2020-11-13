@@ -101,23 +101,34 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:visibility="gone"
                     style="@style/Widget.AppCompat.ActionButton.CloseMode"
-                    android:src="@android:drawable/ic_media_pause" />
+                    android:src="@drawable/ic_shuffle" />
+
+                <ImageButton
+                    android:id="@+id/imageBtn_shuffle_off"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    style="@style/Widget.AppCompat.ActionButton.CloseMode"
+                    android:visibility="visible"
+                    android:src="@drawable/ic_arrow" />
 
 
                 <ImageButton
                     android:id="@+id/imageBtn_previous"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@android:drawable/ic_media_previous" />
+                    style="@style/Widget.AppCompat.ActionButton.CloseMode"
+                    android:src="@drawable/ic_skip_previous" />
 
-                <ImageButton
+                <!--<ImageButton
                     android:id="@+id/imageBtn_pause"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     style="@style/Widget.AppCompat.ActionButton.CloseMode"
-                    android:src="@android:drawable/ic_media_pause" />
+                    android:src="@drawable/ic_pause_circle_outline" />-->
 
                 <ImageButton
                     android:id="@+id/imageBtn_play"
@@ -125,13 +136,30 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     style="@style/Widget.AppCompat.ActionButton.CloseMode"
-                    android:src="@android:drawable/ic_media_play" />
+                    android:src="@drawable/ic_play_circle_outline" />
 
                 <ImageButton
                     android:id="@+id/imageBtn_next"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@android:drawable/ic_media_next" />
+                    style="@style/Widget.AppCompat.ActionButton.CloseMode"
+                    android:src="@drawable/ic_skip_next" />
+
+                <ImageButton
+                    android:id="@+id/imageBtn_repeat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.AppCompat.ActionButton.CloseMode"
+                    android:visibility="gone"
+                    android:src="@drawable/ic_repeat" />
+
+                <ImageButton
+                    android:id="@+id/imageBtn_repeat_one"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.AppCompat.ActionButton.CloseMode"
+                    android:src="@drawable/ic_repeat_one"
+                    android:visibility="visible"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -36,17 +37,19 @@ public class BeatBoxDetailFragment extends Fragment {
     private String mState;
     private MutableLiveData<String> mLiveDataTime;
     private SeekBar mSeekBar;
-    private TextView mTextViewTime,mTextViewTotalTime;
+    private TextView mTextViewTime, mTextViewTotalTime;
+    private ImageButton mImageButton_next,mImageButton_prev,mImageButton_playing;
+    private boolean mIsMusicPlaying;
 
     public BeatBoxDetailFragment() {
         // Required empty public constructor
     }
 
-    public static BeatBoxDetailFragment newInstance(UUID soundId,String state) {
+    public static BeatBoxDetailFragment newInstance(UUID soundId, String state) {
         BeatBoxDetailFragment fragment = new BeatBoxDetailFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARGS_SOUND,soundId);
-        args.putString(ARGS_STATE,state);
+        args.putSerializable(ARGS_SOUND, soundId);
+        args.putString(ARGS_STATE, state);
         fragment.setArguments(args);
         return fragment;
     }
@@ -54,19 +57,20 @@ public class BeatBoxDetailFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(BUNDLE_STATE,mState);
+        outState.putString(BUNDLE_STATE, mState);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState!=null) {
+        if (savedInstanceState != null) {
             mState = savedInstanceState.getString(BUNDLE_STATE);
         }
         mSoundId = (UUID) getArguments().getSerializable(ARGS_SOUND);
         mState = getArguments().getString(ARGS_STATE);
         mRepository = BeatBoxRepository.getInstance(getActivity());
         mSound = mRepository.getSound(mSoundId);
+        mIsMusicPlaying = mRepository.isMusicPlaying();
         mLiveDataTime = new MutableLiveData<>();
     }
 
@@ -79,11 +83,47 @@ public class BeatBoxDetailFragment extends Fragment {
         initView();
         seekBar();
         setLiveDataObservers();
+        listeners();
         return view;
     }
 
+    private void listeners() {
+
+        mImageButton_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mRepository.nextSound(mSound);
+                mSound = mRepository.getPlayingSound();
+                mSoundId = mSound.getSoundId();
+                initView();
+            }
+        });
+        mImageButton_playing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mRepository.getMediaPlayer().isPlaying()) {
+                    mImageButton_playing.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_outline));
+                    mRepository.pause();
+                } else {
+                    mImageButton_playing.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline));
+                    mRepository.playAgain();
+                }
+            }
+        });
+        mImageButton_prev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mRepository.previousSound(mRepository.getSound(mSoundId));
+                mSound = mRepository.getPlayingSound();
+                mSoundId = mSound.getSoundId();
+                initView();
+            }
+        });
+    }
+
     private void initView() {
-        if (mSound.getBitmap()!=null)
+        mIsMusicPlaying = mRepository.isMusicPlaying();
+        if (mSound.getBitmap() != null)
             mImageView.setImageBitmap(mSound.getBitmap());
         else
             mImageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_music));
@@ -94,6 +134,11 @@ public class BeatBoxDetailFragment extends Fragment {
         else
             mTextView.setText(mSound.getAlbum());
 
+        if (mIsMusicPlaying)
+            mImageButton_playing.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline));
+        else
+            mImageButton_playing.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_outline));
+
     }
 
     private void findViews(View view) {
@@ -102,6 +147,9 @@ public class BeatBoxDetailFragment extends Fragment {
         mSeekBar = view.findViewById(R.id.seekBar_detail);
         mTextViewTime = view.findViewById(R.id.txtView_Time_detail);
         mTextViewTotalTime = view.findViewById(R.id.txtView_Time_detail_Total);
+        mImageButton_next = view.findViewById(R.id.imageBtn_next);
+        mImageButton_prev = view.findViewById(R.id.imageBtn_previous);
+        mImageButton_playing = view.findViewById(R.id.imageBtn_play);
     }
 
     private void setLiveDataObservers() {
@@ -119,7 +167,7 @@ public class BeatBoxDetailFragment extends Fragment {
         long minutes = TimeUnit.MILLISECONDS.toMinutes(mRepository.getMediaPlayer().getDuration());
         long seconds = TimeUnit.MILLISECONDS.toSeconds(mRepository.getMediaPlayer().getDuration()) - (minutes * 60);
 
-        final String maxTime =minutes + ":" + seconds;
+        final String maxTime = minutes + ":" + seconds;
         mTextViewTotalTime.setText(maxTime);
 
         new Timer().scheduleAtFixedRate(new TimerTask() {

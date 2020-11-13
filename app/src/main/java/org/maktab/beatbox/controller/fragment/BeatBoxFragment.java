@@ -8,7 +8,9 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -34,22 +36,20 @@ public class BeatBoxFragment extends Fragment {
     public static final String BUNDLE_KEY_STATE = "Bundle_Key_State";
     public static final String BUNDLE_KEY_SEEK_BAR = "Bundle_Key_SeekBar";
     public static final String BUNDLE_KEY_PLAYING_SOUND = "Bundle_key_Playing_Sound";
-    public static final String BUNDLE_KEY_SEEK_BAR_SOUND = "Bundle_Key_SeekBarSound";
+    public static final int REQUEST_CODE_BEAT_BOX_DETAIL = 0;
     private RecyclerView mRecyclerView;
     private BeatBoxRepository mRepository;
     private List<Sound> mSounds;
     private UUID mPlayingSoundId;
-//    private SeekBar mSeekBar;
-    private ImageButton mImageButton_Pause, mImageButton_Play;
-//    private TextView mTextViewTime;
+    private ImageButton mImageButton_Playing, mImageButton_next,mImageButton_prev;
     private ImageView mImageViewSeekBar;
     private TextView mSeekBarSoundName;
-//    private MutableLiveData<String> mLiveDataTime;
     private MutableLiveData<Boolean> mLiveDataSeekBar;
     private MutableLiveData<Sound> mLiveDataPlayingSound;
     private String mState;
     private LinearLayout mLinearLayoutSeekBar;
     private static Boolean mFlagSeekBar;
+    private boolean mIsMusicPlaying;
 
     public BeatBoxFragment() {
         // Required empty public constructor
@@ -78,6 +78,7 @@ public class BeatBoxFragment extends Fragment {
         mSounds = mRepository.getSounds();
         mLiveDataSeekBar = new MutableLiveData<>();
         mLiveDataPlayingSound = mRepository.getLiveDataPlayingSound();
+        mIsMusicPlaying = mRepository.isMusicPlaying();
         if (mFlagSeekBar == null)
             mFlagSeekBar = false;
     }
@@ -94,7 +95,7 @@ public class BeatBoxFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(BUNDLE_KEY_SEEK_BAR, mFlagSeekBar);
-        outState.putSerializable(BUNDLE_KEY_PLAYING_SOUND,mPlayingSoundId);
+        outState.putSerializable(BUNDLE_KEY_PLAYING_SOUND, mPlayingSoundId);
     }
 
     @Override
@@ -126,8 +127,9 @@ public class BeatBoxFragment extends Fragment {
     private void findViews(View view) {
         mRecyclerView = view.findViewById(R.id.recycler_view_beat_box);
 //        mSeekBar = view.findViewById(R.id.seekBar);
-        mImageButton_Play = view.findViewById(R.id.imageBtn_play);
-        mImageButton_Pause = view.findViewById(R.id.imageBtn_pause);
+        mImageButton_prev = view.findViewById(R.id.imageBtn_prev_seekbar);
+        mImageButton_next = view.findViewById(R.id.imageBtn_next_seekbar);
+        mImageButton_Playing = view.findViewById(R.id.imageBtn_pause_seekbar);
 //        mTextViewTime = view.findViewById(R.id.txtView_Time);
         mImageViewSeekBar = view.findViewById(R.id.imageSeekBar);
         mLinearLayoutSeekBar = view.findViewById(R.id.layout_seekBar);
@@ -137,31 +139,52 @@ public class BeatBoxFragment extends Fragment {
     private void initViews() {
         if (!mFlagSeekBar)
             mLinearLayoutSeekBar.setVisibility(View.GONE);
+
         int rowNumber = getResources().getInteger(R.integer.row_number);
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), rowNumber));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
+
+        if (mIsMusicPlaying)
+            mImageButton_Playing.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
+        else
+            mImageButton_Playing.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_arrow));
 
     }
 
     private void listeners() {
 
-        mImageButton_Play.setOnClickListener(new View.OnClickListener() {
+        mImageButton_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mRepository.playAgain();
+                mRepository.nextSound(mRepository.getSound(mPlayingSoundId));
             }
         });
-        mImageButton_Pause.setOnClickListener(new View.OnClickListener() {
+        mImageButton_Playing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mRepository.pause();
+                if (mRepository.getMediaPlayer().isPlaying()) {
+                    mImageButton_Playing.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_arrow));
+                    mRepository.pause();
+                } else {
+                    mImageButton_Playing.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
+                    mRepository.playAgain();
+                }
+            }
+        });
+        mImageButton_prev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mRepository.previousSound(mRepository.getSound(mPlayingSoundId));
             }
         });
 
         mLinearLayoutSeekBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intentBeatBoxDetail = BeatBoxDetailActivity.newIntent(getActivity(),mPlayingSoundId,mState);
-                startActivity(intentBeatBoxDetail);
+                Intent intentBeatBoxDetail = BeatBoxDetailActivity.newIntent(getActivity(), mPlayingSoundId, mState);
+                startActivityForResult(intentBeatBoxDetail, REQUEST_CODE_BEAT_BOX_DETAIL);
+
             }
         });
     }
@@ -242,6 +265,7 @@ public class BeatBoxFragment extends Fragment {
                     mImageViewSeekBar.setImageBitmap(sound.getBitmap());
                 else
                     mImageViewSeekBar.setImageDrawable(getResources().getDrawable(R.drawable.ic_music));
+
             }
         });
     }
@@ -269,15 +293,14 @@ public class BeatBoxFragment extends Fragment {
                     mFlagSeekBar = true;
                     mLiveDataSeekBar.postValue(mFlagSeekBar);
                     mLinearLayoutSeekBar.setVisibility(View.VISIBLE);
-                    mRepository.loadMusic(mSound.getName());
+                    mRepository.loadMusic(mSound.getSoundId());
+                    mImageButton_Playing.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
                     mPlayingSoundId = mSound.getSoundId();
                     if (mState.equalsIgnoreCase("Tracks")) {
                         mSeekBarSoundName.setText(mSound.getTitle());
-                    }
-                    else if (mState.equalsIgnoreCase("Artists")) {
+                    } else if (mState.equalsIgnoreCase("Artists")) {
                         mSeekBarSoundName.setText(mSound.getArtist());
-                    }
-                    else {
+                    } else {
                         mSeekBarSoundName.setText(mSound.getAlbum());
                     }
                     if (mSound.getBitmap() != null) {
