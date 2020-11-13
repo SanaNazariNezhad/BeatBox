@@ -41,10 +41,12 @@ public class BeatBoxDetailFragment extends Fragment {
     private MutableLiveData<Boolean> mLiveDataRepeatAll;
     private SeekBar mSeekBar;
     private TextView mTextViewTime, mTextViewTotalTime;
-    private ImageButton mImageButton_next, mImageButton_prev, mImageButton_playing, mImageButtonRepeatOne,
-            mImageButtonRepeatAll;
+    private ImageButton mImageButton_next, mImageButton_prev, mImageButton_playing,
+            mImageButtonRepeat;
     private boolean mIsMusicPlaying;
     private boolean mIsRepeatAll;
+    private static boolean  mWhichButton;
+    private String mStringRepeatState;
 
     public BeatBoxDetailFragment() {
         // Required empty public constructor
@@ -77,6 +79,7 @@ public class BeatBoxDetailFragment extends Fragment {
         mSound = mRepository.getSound(mSoundId);
         mSounds = mRepository.getSounds();
         mIsMusicPlaying = mRepository.isMusicPlaying();
+        mWhichButton = mRepository.isRepeat();
         mLiveDataTime = new MutableLiveData<>();
         mLiveDataRepeatAll = mRepository.getLiveDataIsPlaying();
     }
@@ -126,18 +129,21 @@ public class BeatBoxDetailFragment extends Fragment {
                 initView();
             }
         });
-        mImageButtonRepeatOne.setOnClickListener(new View.OnClickListener() {
+        mImageButtonRepeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mRepository.repeatOne(mRepository.getSound(mSoundId));
-                initView();
-            }
-        });
-        mImageButtonRepeatAll.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mIsRepeatAll = mRepository.isRepeatAll();
-                mRepository.setRepeatAll(!mIsRepeatAll);
+                mRepository.setRepeat(!mWhichButton);
+                mWhichButton = mRepository.isRepeat();
+                if (mWhichButton) {
+                    mIsRepeatAll = mRepository.isRepeatAll();
+                    mRepository.setRepeatAll(!mIsRepeatAll);
+                }
+                else if (!mWhichButton){
+                    mRepository.repeatOne(mRepository.getSound(mSoundId));
+                    mIsRepeatAll = mRepository.isRepeatAll();
+                    mRepository.setRepeatAll(!mIsRepeatAll);
+                    initView();
+                }
             }
         });
     }
@@ -160,6 +166,11 @@ public class BeatBoxDetailFragment extends Fragment {
         else
             mImageButton_playing.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_outline));
 
+        if (mWhichButton)
+            mImageButtonRepeat.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat));
+        else
+            mImageButtonRepeat.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_one));
+
     }
 
     private void findViews(View view) {
@@ -171,8 +182,7 @@ public class BeatBoxDetailFragment extends Fragment {
         mImageButton_next = view.findViewById(R.id.imageBtn_next);
         mImageButton_prev = view.findViewById(R.id.imageBtn_previous);
         mImageButton_playing = view.findViewById(R.id.imageBtn_play);
-        mImageButtonRepeatOne = view.findViewById(R.id.imageBtn_repeat_one);
-        mImageButtonRepeatAll = view.findViewById(R.id.imageBtn_repeat_all);
+        mImageButtonRepeat = view.findViewById(R.id.imageBtn_repeat);
     }
 
     private void setLiveDataObservers() {
@@ -182,11 +192,22 @@ public class BeatBoxDetailFragment extends Fragment {
                 mTextViewTime.setText(time);
                 if (time.equals(mTextViewTotalTime.getText().toString()))
                     mLiveDataRepeatAll.postValue(false);
+
+                if (mWhichButton) {
+                    mImageButtonRepeat.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat));
+                    mStringRepeatState = "All";
+                }
+                else {
+                    mImageButtonRepeat.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_one));
+                    mStringRepeatState = "One";
+                }
             }
+
         });
         mLiveDataRepeatAll.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isPlaying) {
+
                 if (!isPlaying && mRepository.isRepeatAll()){
                     mRepository.nextSound(mSound);
                     mSound = mRepository.getPlayingSound();

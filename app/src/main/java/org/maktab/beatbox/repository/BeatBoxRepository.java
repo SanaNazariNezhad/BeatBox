@@ -35,11 +35,20 @@ public class BeatBoxRepository {
     private boolean isMusicPlaying;
     private boolean isRepeatOne;
     private boolean isRepeatAll;
+    private boolean isRepeat;
 
+    public boolean isRepeat() {
+        return isRepeat;
+    }
+
+    public void setRepeat(boolean repeat) {
+        isRepeat = repeat;
+    }
 
     public boolean isRepeatOne() {
         return isRepeatOne;
     }
+
 
     public MutableLiveData<Boolean> getLiveDataIsPlaying() {
         return mLiveDataIsPlaying;
@@ -86,6 +95,7 @@ public class BeatBoxRepository {
         isMusicPlaying = false;
         isRepeatOne = false;
         isRepeatAll = false;
+        isRepeat = false;
     }
 
     //it runs on constructor at the start of repository
