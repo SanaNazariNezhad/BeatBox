@@ -30,8 +30,28 @@ public class BeatBoxRepository {
     private int mIndex;
     private Boolean mFlagPlay;
     private MutableLiveData<Sound> mLiveDataPlayingSound;
+    private MutableLiveData<Boolean> mLiveDataIsPlaying;
     private Sound mPlayingSound;
     private boolean isMusicPlaying;
+    private boolean isRepeatOne;
+    private boolean isRepeatAll;
+
+
+    public boolean isRepeatOne() {
+        return isRepeatOne;
+    }
+
+    public MutableLiveData<Boolean> getLiveDataIsPlaying() {
+        return mLiveDataIsPlaying;
+    }
+
+    public boolean isRepeatAll() {
+        return isRepeatAll;
+    }
+
+    public void setRepeatAll(boolean repeatAll) {
+        isRepeatAll = repeatAll;
+    }
 
     public boolean isMusicPlaying() {
         return isMusicPlaying;
@@ -62,7 +82,10 @@ public class BeatBoxRepository {
         mIndex = -1;
         mFlagPlay = false;
         mLiveDataPlayingSound = new MutableLiveData<>();
+        mLiveDataIsPlaying = new MutableLiveData<>();
         isMusicPlaying = false;
+        isRepeatOne = false;
+        isRepeatAll = false;
     }
 
     //it runs on constructor at the start of repository
@@ -80,14 +103,11 @@ public class BeatBoxRepository {
                 String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
                 String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
                 String album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-                byte [] data = metaRetriever.getEmbeddedPicture();
-                if(data != null)
-                {
+                byte[] data = metaRetriever.getEmbeddedPicture();
+                if (data != null) {
                     mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 
-                }
-                else
-                {
+                } else {
                     mBitmap = null;
                 }
 
@@ -126,31 +146,30 @@ public class BeatBoxRepository {
         }
     }
 
-    public Sound getSound(UUID uuid){
+    public Sound getSound(UUID uuid) {
         Sound result = null;
-        for (Sound sound:mSounds) {
+        for (Sound sound : mSounds) {
             if (sound.getSoundId().equals(uuid))
                 result = sound;
         }
         return result;
     }
 
-    private int getSoundIndex(UUID uuid){
+    public int getSoundIndex(UUID uuid) {
         int index = -1;
-        for (int i = 0; i <mSounds.size() ; i++) {
+        for (int i = 0; i < mSounds.size(); i++) {
             if (mSounds.get(i).getSoundId().equals(uuid))
                 index = i;
         }
         return index;
     }
 
-    public void nextSound(Sound sound){
+    public void nextSound(Sound sound) {
         int index = getSoundIndex(sound.getSoundId());
-        if (index == (mSounds.size()-1)) {
+        if (index == (mSounds.size() - 1)) {
             loadMusic(mSounds.get(0).getSoundId());
             mPlayingSound = mSounds.get(0);
-        }
-        else {
+        } else {
             loadMusic(mSounds.get((index + 1)).getSoundId());
             mPlayingSound = mSounds.get((index + 1));
         }
@@ -160,14 +179,40 @@ public class BeatBoxRepository {
     public void previousSound(Sound sound) {
         int index = getSoundIndex(sound.getSoundId());
         if (index == 0) {
-            loadMusic(mSounds.get((mSounds.size()-1)).getSoundId());
-            mPlayingSound = mSounds.get((mSounds.size()-1));
-        }
-        else {
+            loadMusic(mSounds.get((mSounds.size() - 1)).getSoundId());
+            mPlayingSound = mSounds.get((mSounds.size() - 1));
+        } else {
             loadMusic(mSounds.get((index - 1)).getSoundId());
             mPlayingSound = mSounds.get((index - 1));
         }
         isMusicPlaying = true;
+    }
+
+    public void repeatOne(Sound sound) {
+        if (!isRepeatOne) {
+            if (!mMediaPlayer.isPlaying())
+                loadMusic(sound.getSoundId());
+            mMediaPlayer.setLooping(true);
+        } else {
+            mMediaPlayer.setLooping(false);
+        }
+        isRepeatOne = !isRepeatOne;
+
+    }
+
+    public void repeatAll(Sound sound) {
+        int index = getSoundIndex(sound.getSoundId());
+        if (index == mSounds.size() - 1)
+            index = 0;
+        while (index < mSounds.size() && isRepeatAll) {
+            loadMusic(mSounds.get(index).getSoundId());
+            if (index == mSounds.size() - 1)
+                index = 0;
+            else
+                index +=1;
+        }
+
+
     }
 
     private void loadInMediaPlayer(AssetManager assetManager, Sound sound) throws IOException {
@@ -185,6 +230,8 @@ public class BeatBoxRepository {
 
         mMediaPlayer.start();
         mLiveDataPlayingSound.postValue(sound);
+        mLiveDataIsPlaying.postValue(true);
+        mPlayingSound = sound;
         isMusicPlaying = true;
     }
 

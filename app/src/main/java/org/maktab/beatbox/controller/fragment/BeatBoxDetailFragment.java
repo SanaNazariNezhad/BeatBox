@@ -19,6 +19,7 @@ import org.maktab.beatbox.R;
 import org.maktab.beatbox.model.Sound;
 import org.maktab.beatbox.repository.BeatBoxRepository;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -31,15 +32,19 @@ public class BeatBoxDetailFragment extends Fragment {
     public static final String BUNDLE_STATE = "bundle_state";
     private UUID mSoundId;
     private Sound mSound;
+    private List<Sound> mSounds;
     private BeatBoxRepository mRepository;
     private ImageView mImageView;
     private TextView mTextView;
     private String mState;
     private MutableLiveData<String> mLiveDataTime;
+    private MutableLiveData<Boolean> mLiveDataRepeatAll;
     private SeekBar mSeekBar;
     private TextView mTextViewTime, mTextViewTotalTime;
-    private ImageButton mImageButton_next,mImageButton_prev,mImageButton_playing;
+    private ImageButton mImageButton_next, mImageButton_prev, mImageButton_playing, mImageButtonRepeatOne,
+            mImageButtonRepeatAll;
     private boolean mIsMusicPlaying;
+    private boolean mIsRepeatAll;
 
     public BeatBoxDetailFragment() {
         // Required empty public constructor
@@ -70,8 +75,10 @@ public class BeatBoxDetailFragment extends Fragment {
         mState = getArguments().getString(ARGS_STATE);
         mRepository = BeatBoxRepository.getInstance(getActivity());
         mSound = mRepository.getSound(mSoundId);
+        mSounds = mRepository.getSounds();
         mIsMusicPlaying = mRepository.isMusicPlaying();
         mLiveDataTime = new MutableLiveData<>();
+        mLiveDataRepeatAll = mRepository.getLiveDataIsPlaying();
     }
 
     @Override
@@ -119,6 +126,20 @@ public class BeatBoxDetailFragment extends Fragment {
                 initView();
             }
         });
+        mImageButtonRepeatOne.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mRepository.repeatOne(mRepository.getSound(mSoundId));
+                initView();
+            }
+        });
+        mImageButtonRepeatAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mIsRepeatAll = mRepository.isRepeatAll();
+                mRepository.setRepeatAll(!mIsRepeatAll);
+            }
+        });
     }
 
     private void initView() {
@@ -150,6 +171,8 @@ public class BeatBoxDetailFragment extends Fragment {
         mImageButton_next = view.findViewById(R.id.imageBtn_next);
         mImageButton_prev = view.findViewById(R.id.imageBtn_previous);
         mImageButton_playing = view.findViewById(R.id.imageBtn_play);
+        mImageButtonRepeatOne = view.findViewById(R.id.imageBtn_repeat_one);
+        mImageButtonRepeatAll = view.findViewById(R.id.imageBtn_repeat_all);
     }
 
     private void setLiveDataObservers() {
@@ -157,6 +180,19 @@ public class BeatBoxDetailFragment extends Fragment {
             @Override
             public void onChanged(String time) {
                 mTextViewTime.setText(time);
+                if (time.equals(mTextViewTotalTime.getText().toString()))
+                    mLiveDataRepeatAll.postValue(false);
+            }
+        });
+        mLiveDataRepeatAll.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isPlaying) {
+                if (!isPlaying && mRepository.isRepeatAll()){
+                    mRepository.nextSound(mSound);
+                    mSound = mRepository.getPlayingSound();
+                    mSoundId = mSound.getSoundId();
+                    initView();
+                }
             }
         });
     }

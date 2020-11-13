@@ -146,11 +146,11 @@
                     android:src="@drawable/ic_skip_next" />
 
                 <ImageButton
-                    android:id="@+id/imageBtn_repeat"
+                    android:id="@+id/imageBtn_repeat_all"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/Widget.AppCompat.ActionButton.CloseMode"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     android:src="@drawable/ic_repeat" />
 
                 <ImageButton
