@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="8dp"
     tools:context=".controller.fragment.BeatBoxFragment">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -16,14 +15,14 @@
     </androidx.recyclerview.widget.RecyclerView>
 
     <LinearLayout
+        android:id="@+id/layout_seekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp"
         android:layout_alignParentBottom="true"
         style="@style/SeekBarLayout"
         android:orientation="vertical">
 
-        <LinearLayout
+        <!--<LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -47,9 +46,9 @@
                 android:textColor="@color/black" />
 
 
-        </LinearLayout>
+        </LinearLayout>-->
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/layout_buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -58,27 +57,41 @@
             android:orientation="horizontal">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewSeekBar"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_margin="10dp"
+                android:layout_margin="4dp"
+                android:layout_marginStart="2dp"
                 app:cardCornerRadius="50dp"
+                android:layout_alignParentStart="true"
                 app:cardElevation="0dp">
 
             <ImageView
                 android:id="@+id/imageSeekBar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/dark_blue"
                 android:scaleType="fitXY"
                 android:adjustViewBounds="true" />
 
             </androidx.cardview.widget.CardView>
 
+            <TextView
+                android:id="@+id/text_seekBar_Sound_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/cardViewSeekBar"
+                android:layout_alignBottom="@id/cardViewSeekBar"
+                android:gravity="center"
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:layout_toRightOf="@id/cardViewSeekBar" />
+
             <ImageButton
                 android:id="@+id/imageBtn_pause"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="65dp"
+                android:layout_toStartOf="@id/imageBtn_play"
+                android:layout_alignTop="@id/cardViewSeekBar"
+                android:layout_alignBottom="@id/cardViewSeekBar"
                 android:layout_gravity="center"
                 style="@style/Widget.AppCompat.ActionButton.CloseMode"
                 android:src="@android:drawable/ic_media_pause" />
@@ -87,10 +100,14 @@
                 android:id="@+id/imageBtn_play"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@id/cardViewSeekBar"
+                android:layout_alignBottom="@id/cardViewSeekBar"
                 android:layout_gravity="center"
                 style="@style/Widget.AppCompat.ActionButton.CloseMode"
                 android:src="@android:drawable/ic_media_play" />
-        </LinearLayout>
+
+        </RelativeLayout>
     </LinearLayout>
 
 

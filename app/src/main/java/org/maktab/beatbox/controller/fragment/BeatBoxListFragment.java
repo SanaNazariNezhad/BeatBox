@@ -17,6 +17,8 @@ import com.google.android.material.tabs.TabLayout;
 import org.maktab.beatbox.R;
 import org.maktab.beatbox.repository.BeatBoxRepository;
 
+import java.util.UUID;
+
 public class BeatBoxListFragment extends Fragment {
     private TabLayout mTabLayout;
     private ViewPager2 mViewPager;
@@ -37,7 +39,6 @@ public class BeatBoxListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mFragmentTracks = BeatBoxFragment.newInstance("Tracks");
         mFragmentArtists = BeatBoxFragment.newInstance("Artists");
         mFragmentAlbums = BeatBoxFragment.newInstance("Albums");
@@ -129,10 +130,13 @@ public class BeatBoxListFragment extends Fragment {
             switch (position) {
                 case 0:
                     return mFragmentTracks;
+
                 case 1:
                     return mFragmentArtists;
+
                 case 2:
                     return mFragmentAlbums;
+
                 default:
                     return null;
             }

@@ -4,16 +4,22 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
-public class Sound {
+public class Sound{
     private String mName;
     private String mAssetPath;
     private Bitmap mBitmap;
     private String mTitle;
     private String mArtist;
     private String mAlbum;
+    private UUID mSoundId;
 
+    public UUID getSoundId() {
+        return mSoundId;
+    }
 
     public Bitmap getBitmap() {
         return mBitmap;
@@ -71,6 +77,7 @@ public class Sound {
         int lastDotIndex = fileNameWithExtension.lastIndexOf(".");
 
         mName = fileNameWithExtension.substring(0, lastDotIndex);
+        mSoundId = UUID.randomUUID();
     }
 
     public Sound() {

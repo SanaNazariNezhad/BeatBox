@@ -9,12 +9,15 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.util.Log;
 
+import androidx.lifecycle.MutableLiveData;
+
 import org.maktab.beatbox.model.Sound;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class BeatBoxRepository {
 
@@ -26,16 +29,10 @@ public class BeatBoxRepository {
     private List<Sound> mSounds = new ArrayList<>();
     private int mIndex;
     private Boolean mFlagPlay;
+    private MutableLiveData<Sound> mLiveDataPlayingSound;
 
-    private Sound mPlayingSound;
-
-
-    public Sound getPlayingSound() {
-        return mPlayingSound;
-    }
-
-    public void setPlayingSound(Sound playingSound) {
-        this.mPlayingSound = playingSound;
+    public MutableLiveData<Sound> getLiveDataPlayingSound() {
+        return mLiveDataPlayingSound;
     }
 
     public static BeatBoxRepository getInstance(Context context) {
@@ -54,6 +51,7 @@ public class BeatBoxRepository {
         loadSounds();
         mIndex = -1;
         mFlagPlay = false;
+        mLiveDataPlayingSound = new MutableLiveData<>();
     }
 
     //it runs on constructor at the start of repository
@@ -117,6 +115,15 @@ public class BeatBoxRepository {
         }
     }
 
+    public Sound getSound(UUID uuid){
+        Sound result = null;
+        for (Sound sound:mSounds) {
+            if (sound.getSoundId().equals(uuid))
+                result = sound;
+        }
+        return result;
+    }
+
     private void loadInMediaPlayer(AssetManager assetManager, Sound sound) throws IOException {
         AssetFileDescriptor afd = assetManager.openFd(sound.getAssetPath());
         mMediaPlayer = new MediaPlayer();
@@ -131,9 +138,7 @@ public class BeatBoxRepository {
             return;
 
         mMediaPlayer.start();
-        setPlayingSound(sound);
-
-
+        mLiveDataPlayingSound.postValue(sound);
     }
 
     public void release() {
