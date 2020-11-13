@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -109,8 +110,6 @@ public class BeatBoxFragment extends Fragment {
         initViews();
         setLiveDataObservers();
         listeners();
-//        seekBar();
-//        setLiveDataObservers();
         setupAdapter();
 
         return view;
@@ -126,11 +125,9 @@ public class BeatBoxFragment extends Fragment {
 
     private void findViews(View view) {
         mRecyclerView = view.findViewById(R.id.recycler_view_beat_box);
-//        mSeekBar = view.findViewById(R.id.seekBar);
         mImageButton_prev = view.findViewById(R.id.imageBtn_prev_seekbar);
         mImageButton_next = view.findViewById(R.id.imageBtn_next_seekbar);
         mImageButton_Playing = view.findViewById(R.id.imageBtn_pause_seekbar);
-//        mTextViewTime = view.findViewById(R.id.txtView_Time);
         mImageViewSeekBar = view.findViewById(R.id.imageSeekBar);
         mLinearLayoutSeekBar = view.findViewById(R.id.layout_seekBar);
         mSeekBarSoundName = view.findViewById(R.id.text_seekBar_Sound_name);
@@ -140,6 +137,10 @@ public class BeatBoxFragment extends Fragment {
         if (!mFlagSeekBar)
             mLinearLayoutSeekBar.setVisibility(View.GONE);
 
+        mSeekBarSoundName.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+        mSeekBarSoundName.setSingleLine(true);
+        mSeekBarSoundName.setSelected(true);
+        mSeekBarSoundName.setMarqueeRepeatLimit(-1);
         int rowNumber = getResources().getInteger(R.integer.row_number);
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), rowNumber));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -188,60 +189,6 @@ public class BeatBoxFragment extends Fragment {
             }
         });
     }
-
-    /*private void setLiveDataObservers() {
-        mLiveDataTime.observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String time) {
-                mTextViewTime.setText(time);
-            }
-        });
-    }
-
-    private void seekBar() {
-        mSeekBar.setMax(mRepository.getMediaPlayer().getDuration());
-        mSeekBar.setProgress(mRepository.getMediaPlayer().getCurrentPosition());
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(mRepository.getMediaPlayer().getDuration());
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(mRepository.getMediaPlayer().getDuration()) - (minutes * 60);
-
-        final String maxTime = "/" + minutes + ":" + seconds;
-        mTextViewTime.setText("0" + maxTime);
-
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                mSeekBar.setProgress(mRepository.getMediaPlayer().getCurrentPosition());
-                long minutes = TimeUnit.MILLISECONDS.toMinutes(mRepository.getMediaPlayer().getCurrentPosition());
-                long seconds = TimeUnit.MILLISECONDS.toSeconds(mRepository.getMediaPlayer().getCurrentPosition()) - (minutes * 60);
-                String currentTime;
-                if (minutes != 0) {
-                    currentTime = minutes + ":" + seconds;
-                } else {
-                    currentTime = "" + seconds;
-                }
-                String time = currentTime + maxTime;
-                mLiveDataTime.postValue(time);
-//                mTextViewTime.setText(currentTime + maxTime);
-            }
-        }, 0, 1000);
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if (b)
-                    mRepository.getMediaPlayer().seekTo(i);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-    }*/
 
     private void setLiveDataObservers() {
         mLiveDataSeekBar.observe(this, new Observer<Boolean>() {
@@ -308,28 +255,6 @@ public class BeatBoxFragment extends Fragment {
                     } else {
                         mImageViewSeekBar.setImageDrawable(getResources().getDrawable(R.drawable.ic_music));
                     }
-                    MediaPlayer mediaPlayer = mRepository.getMediaPlayer();
-                   /* mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mediaPlayer) {
-                            int index = -1;
-                            int nextMusic = -1;
-                            for (int i = 0; i < mSounds.size(); i++) {
-                                if (mSounds.get(i).equals(mSound)) {
-                                    index = i;
-                                    nextMusic = i + 1;
-                                }
-                            }
-                            if (index != mSounds.size() - 1) {
-                                mRepository.loadMusic(mSounds.get(nextMusic).getName());
-                                mImageViewSeekBar.setImageDrawable(mSounds.get(nextMusic).getDrawable());
-                            }
-                            else {
-                                mRepository.loadMusic(mSounds.get(0).getName());
-                                mImageViewSeekBar.setImageDrawable(mSounds.get(0).getDrawable());
-                            }
-                        }
-                    });*/
                 }
             });
         }

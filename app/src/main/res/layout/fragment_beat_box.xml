@@ -77,13 +77,13 @@
 
             <TextView
                 android:id="@+id/text_seekBar_Sound_name"
-                android:layout_width="wrap_content"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_alignTop="@id/cardViewSeekBar"
                 android:layout_alignBottom="@id/cardViewSeekBar"
+                android:layout_toRightOf="@id/cardViewSeekBar"
                 android:gravity="center"
-                style="@style/TextAppearance.AppCompat.Body1"
-                android:layout_toRightOf="@id/cardViewSeekBar" />
+                style="@style/TextAppearance.AppCompat.Body1" />
 
             <ImageButton
                 android:id="@+id/imageBtn_next_seekbar"

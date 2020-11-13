@@ -32,7 +32,6 @@ public class BeatBoxDetailFragment extends Fragment {
     public static final String BUNDLE_STATE = "bundle_state";
     private UUID mSoundId;
     private Sound mSound;
-    private List<Sound> mSounds;
     private BeatBoxRepository mRepository;
     private ImageView mImageView;
     private TextView mTextView;
@@ -46,7 +45,6 @@ public class BeatBoxDetailFragment extends Fragment {
     private boolean mIsMusicPlaying;
     private boolean mIsRepeatAll;
     private static boolean  mWhichButton;
-    private String mStringRepeatState;
 
     public BeatBoxDetailFragment() {
         // Required empty public constructor
@@ -77,7 +75,6 @@ public class BeatBoxDetailFragment extends Fragment {
         mState = getArguments().getString(ARGS_STATE);
         mRepository = BeatBoxRepository.getInstance(getActivity());
         mSound = mRepository.getSound(mSoundId);
-        mSounds = mRepository.getSounds();
         mIsMusicPlaying = mRepository.isMusicPlaying();
         mWhichButton = mRepository.isRepeat();
         mLiveDataTime = new MutableLiveData<>();
@@ -195,11 +192,9 @@ public class BeatBoxDetailFragment extends Fragment {
 
                 if (mWhichButton) {
                     mImageButtonRepeat.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat));
-                    mStringRepeatState = "All";
                 }
                 else {
                     mImageButtonRepeat.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_one));
-                    mStringRepeatState = "One";
                 }
             }
 
