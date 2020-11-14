@@ -141,10 +141,13 @@ public class BeatBoxFragment extends Fragment {
         mSeekBarSoundName.setSingleLine(true);
         mSeekBarSoundName.setSelected(true);
         mSeekBarSoundName.setMarqueeRepeatLimit(-1);
-        int rowNumber = getResources().getInteger(R.integer.row_number);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), rowNumber));
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
+        if (mState.equalsIgnoreCase("Albums")) {
+            int rowNumber = getResources().getInteger(R.integer.row_number);
+            mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), rowNumber));
+        }else {
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
+        }
 
         if (mIsMusicPlaying)
             mImageButton_Playing.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
@@ -294,10 +297,17 @@ public class BeatBoxFragment extends Fragment {
         @NonNull
         @Override
         public SoundHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(getContext())
-                    .inflate(R.layout.list_item_sound, parent, false);
+            if (mState.equalsIgnoreCase("Albums")) {
+                View view = LayoutInflater.from(getContext())
+                        .inflate(R.layout.fragment_album, parent, false);
+                return new SoundHolder(view);
+            }
+            else {
+                View view = LayoutInflater.from(getContext())
+                        .inflate(R.layout.list_item_sound, parent, false);
+                return new SoundHolder(view);
+            }
 
-            return new SoundHolder(view);
         }
 
         @Override

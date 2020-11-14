@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 public class BeatBoxRepository {
@@ -27,6 +28,15 @@ public class BeatBoxRepository {
     private Context mContext;
     private MediaPlayer mMediaPlayer;
     private List<Sound> mSounds = new ArrayList<>();
+
+    public int getIndex() {
+        return mIndex;
+    }
+
+    public void setIndex(int index) {
+        mIndex = index;
+    }
+
     private int mIndex;
     private Boolean mFlagPlay;
     private MutableLiveData<Sound> mLiveDataPlayingSound;
@@ -36,6 +46,16 @@ public class BeatBoxRepository {
     private boolean isRepeatOne;
     private boolean isRepeatAll;
     private boolean isRepeat;
+
+    public boolean isShuffle() {
+        return isShuffle;
+    }
+
+    public void setShuffle(boolean shuffle) {
+        isShuffle = shuffle;
+    }
+
+    private boolean isShuffle;
 
     public boolean isRepeat() {
         return isRepeat;
@@ -88,14 +108,15 @@ public class BeatBoxRepository {
     private BeatBoxRepository(Context context) {
         mContext = context.getApplicationContext();
         loadSounds();
-        mIndex = -1;
         mFlagPlay = false;
+        mIndex = 0;
         mLiveDataPlayingSound = new MutableLiveData<>();
         mLiveDataIsPlaying = new MutableLiveData<>();
         isMusicPlaying = false;
         isRepeatOne = false;
         isRepeatAll = false;
         isRepeat = false;
+        isShuffle = false;
     }
 
     //it runs on constructor at the start of repository
@@ -219,10 +240,26 @@ public class BeatBoxRepository {
             if (index == mSounds.size() - 1)
                 index = 0;
             else
-                index +=1;
+                index += 1;
         }
 
 
+    }
+
+    public List<Integer> shuffle() {
+        Random random = new Random();
+        List<Integer> soundIndex = new ArrayList<>();
+        soundIndex.add(random.nextInt(mSounds.size() - 0) + 0);
+// you have also handle min to max index
+        while (soundIndex.size() != mSounds.size()) {
+            int index = random.nextInt(mSounds.size() - 0) + 0;
+            for (int i = 0; i < soundIndex.size(); i++) {
+                if (index == soundIndex.get(i))
+                    break;
+            }
+            soundIndex.add(index);
+        }
+        return soundIndex;
     }
 
     private void loadInMediaPlayer(AssetManager assetManager, Sound sound) throws IOException {

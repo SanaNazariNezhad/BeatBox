@@ -101,7 +101,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     style="@style/Widget.AppCompat.ActionButton.CloseMode"
                     android:src="@drawable/ic_shuffle" />
 
@@ -111,7 +111,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     style="@style/Widget.AppCompat.ActionButton.CloseMode"
-                    android:visibility="visible"
+                    android:visibility="gone"
                     android:src="@drawable/ic_arrow" />
 
 
