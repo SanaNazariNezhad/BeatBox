@@ -28,15 +28,6 @@ public class BeatBoxRepository {
     private Context mContext;
     private MediaPlayer mMediaPlayer;
     private List<Sound> mSounds = new ArrayList<>();
-
-    public int getIndex() {
-        return mIndex;
-    }
-
-    public void setIndex(int index) {
-        mIndex = index;
-    }
-
     private int mIndex;
     private Boolean mFlagPlay;
     private MutableLiveData<Sound> mLiveDataPlayingSound;
@@ -49,6 +40,14 @@ public class BeatBoxRepository {
 
     public boolean isShuffle() {
         return isShuffle;
+    }
+
+    public int getIndex() {
+        return mIndex;
+    }
+
+    public void setIndex(int index) {
+        mIndex = index;
     }
 
     public void setShuffle(boolean shuffle) {
