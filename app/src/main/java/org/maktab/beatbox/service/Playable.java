@@ -1,4 +1,4 @@
-package org.maktab.beatbox;
+package org.maktab.beatbox.service;
 
 public interface Playable {
     void onSoundPrevious();

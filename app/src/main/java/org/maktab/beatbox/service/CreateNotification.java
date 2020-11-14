@@ -1,4 +1,4 @@
-package org.maktab.beatbox;
+package org.maktab.beatbox.service;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -12,6 +12,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import org.maktab.beatbox.R;
 import org.maktab.beatbox.model.Sound;
 import org.maktab.beatbox.repository.BeatBoxRepository;
 import org.maktab.beatbox.service.NotificationActionService;

@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -29,8 +28,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.maktab.beatbox.CreateNotification;
-import org.maktab.beatbox.Playable;
+import org.maktab.beatbox.service.CreateNotification;
+import org.maktab.beatbox.service.Playable;
 import org.maktab.beatbox.controller.activity.BeatBoxDetailActivity;
 import org.maktab.beatbox.R;
 import org.maktab.beatbox.model.Sound;
