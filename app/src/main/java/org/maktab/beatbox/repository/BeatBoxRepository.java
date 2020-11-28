@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.os.Environment;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
@@ -37,6 +38,7 @@ public class BeatBoxRepository {
     private boolean isRepeatOne;
     private boolean isRepeatAll;
     private boolean isRepeat;
+    private String[] itemsAll;
 
     public boolean isShuffle() {
         return isShuffle;
@@ -118,17 +120,40 @@ public class BeatBoxRepository {
         isShuffle = false;
     }
 
+    public ArrayList<File> readOnlyAudioMusics(File file) {
+
+        ArrayList<File> arrayList = new ArrayList<>();
+        File[] allFiles = file.listFiles();
+
+        for (File individualFile : allFiles) {
+
+            if (individualFile.isDirectory() && individualFile.isHidden()){
+                arrayList.addAll(readOnlyAudioMusics(individualFile));
+            }
+            else {
+                if (individualFile.getName().endsWith(".mp3") || individualFile.getName().endsWith(".aac")
+                        || individualFile.getName().endsWith(".wav") || individualFile.getName().endsWith(".wma")){
+                    arrayList.add(individualFile);
+                }
+            }
+
+        }
+        return arrayList;
+    }
+
     //it runs on constructor at the start of repository
     public void loadSounds() {
-        AssetManager assetManager = mContext.getAssets();
+//        AssetManager assetManager = mContext.getAssets();
         MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
         Bitmap mBitmap;
         try {
-            String[] fileNames = assetManager.list(ASSET_FOLDER);
-            for (int i = 0; i < fileNames.length; i++) {
-                String assetPath = ASSET_FOLDER + File.separator + fileNames[i];
-                AssetFileDescriptor afd = mContext.getAssets().openFd(assetPath);
-                metaRetriever.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            final ArrayList<File> musics = readOnlyAudioMusics(Environment.getExternalStorageDirectory());
+//            String[] fileNames = assetManager.list(ASSET_FOLDER);
+            for (int i = 0; i < musics.size(); i++) {
+//                String assetPath = ASSET_FOLDER + File.separator + fileNames[i];
+                String path = musics.get(i).getAbsolutePath();
+//                AssetFileDescriptor afd = mContext.getAssets().openFd(path);
+                metaRetriever.setDataSource(path);
 
                 String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
                 String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
@@ -141,13 +166,13 @@ public class BeatBoxRepository {
                     mBitmap = null;
                 }
 
-                afd.close();
-                Sound sound = new Sound(assetPath);
+//                afd.close();
+                Sound sound = new Sound(path);
                 sound.setTitle(title);
                 sound.setArtist(artist);
                 sound.setAlbum(album);
                 sound.setBitmap(mBitmap);
-                loadInMediaPlayer(assetManager, sound);
+                loadInMediaPlayer(path, sound);
                 mSounds.add(sound);
             }
 
@@ -162,11 +187,11 @@ public class BeatBoxRepository {
         mFlagPlay = true;
         if (mMediaPlayer.isPlaying())
             mMediaPlayer.stop();
-        AssetManager assetManager = mContext.getAssets();
+//        AssetManager assetManager = mContext.getAssets();
         try {
             for (Sound sound : mSounds) {
                 if (sound.getSoundId().equals(uuid)) {
-                    loadInMediaPlayer(assetManager, sound);
+                    loadInMediaPlayer(sound.getAssetPath(), sound);
                     play(sound);
                 }
             }
@@ -261,10 +286,11 @@ public class BeatBoxRepository {
         return soundIndex;
     }
 
-    private void loadInMediaPlayer(AssetManager assetManager, Sound sound) throws IOException {
-        AssetFileDescriptor afd = assetManager.openFd(sound.getAssetPath());
+    private void loadInMediaPlayer(String path, Sound sound) throws IOException {
+//        AssetFileDescriptor afd = assetManager.openFd(sound.getAssetPath());
         mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+//        mMediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+        mMediaPlayer.setDataSource(path);
         mMediaPlayer.prepare();
     }
     //it runs on demand when user want to hear the sound
