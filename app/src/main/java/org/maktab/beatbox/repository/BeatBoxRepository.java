@@ -3,10 +3,12 @@ package org.maktab.beatbox.repository;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
@@ -106,7 +108,7 @@ public class BeatBoxRepository {
 
     private BeatBoxRepository(Context context) {
         mContext = context.getApplicationContext();
-        loadSounds();
+        music();
         mFlagPlay = false;
         mIndex = 0;
         mLiveDataPlayingSound = new MutableLiveData<>();
@@ -158,6 +160,47 @@ public class BeatBoxRepository {
         }
     }
 
+    public void music(){
+        Bitmap mBitmap;
+        String[] projection = new String[] {MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.VOLUME_NAME
+                //media-database-columns-to-retrieve
+        };
+
+        Cursor cursor = mContext.getContentResolver().query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                null,
+                null,
+                null
+        );
+
+        if (cursor == null || cursor.getCount() == 0)
+            return;
+        try {
+            while (cursor.moveToFirst()) {
+
+                String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+                String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+                String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+                String path = cursor.getString(cursor.getColumnIndex(String.valueOf(
+                        MediaStore.Audio.Media.getContentUri(MediaStore.Audio.Media.VOLUME_NAME))));
+                Sound sound = new Sound(path);
+                sound.setTitle(title);
+                sound.setArtist(artist);
+                sound.setAlbum(album);
+                loadInMusicPlayer(path, sound);
+                mSounds.add(sound);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            cursor.close();
+        }
+
+    }
+
     public void loadMusic(UUID uuid) {
         mFlagPlay = true;
         if (mMediaPlayer.isPlaying())
@@ -166,7 +209,7 @@ public class BeatBoxRepository {
         try {
             for (Sound sound : mSounds) {
                 if (sound.getSoundId().equals(uuid)) {
-                    loadInMediaPlayer(assetManager, sound);
+                    loadInMusicPlayer(sound.getAssetPath(), sound);
                     play(sound);
                 }
             }
@@ -265,6 +308,12 @@ public class BeatBoxRepository {
         AssetFileDescriptor afd = assetManager.openFd(sound.getAssetPath());
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+        mMediaPlayer.prepare();
+    }
+
+    private void loadInMusicPlayer(String path, Sound sound) throws IOException {
+        mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setDataSource(path);
         mMediaPlayer.prepare();
     }
     //it runs on demand when user want to hear the sound
