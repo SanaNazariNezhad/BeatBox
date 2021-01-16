@@ -1,5 +1,7 @@
 package org.maktab.beatbox.repository;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
@@ -7,6 +9,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
@@ -17,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
@@ -37,6 +42,7 @@ public class BeatBoxRepository {
     private boolean isRepeatOne;
     private boolean isRepeatAll;
     private boolean isRepeat;
+    private Uri mSoundUri;
 
     public boolean isShuffle() {
         return isShuffle;
@@ -106,7 +112,7 @@ public class BeatBoxRepository {
 
     private BeatBoxRepository(Context context) {
         mContext = context.getApplicationContext();
-        loadSounds();
+        findSongs();
         mFlagPlay = false;
         mIndex = 0;
         mLiveDataPlayingSound = new MutableLiveData<>();
@@ -119,42 +125,31 @@ public class BeatBoxRepository {
     }
 
     //it runs on constructor at the start of repository
-    public void loadSounds() {
-        AssetManager assetManager = mContext.getAssets();
-        MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-        Bitmap mBitmap;
-        try {
-            String[] fileNames = assetManager.list(ASSET_FOLDER);
-            for (int i = 0; i < fileNames.length; i++) {
-                String assetPath = ASSET_FOLDER + File.separator + fileNames[i];
-                AssetFileDescriptor afd = mContext.getAssets().openFd(assetPath);
-                metaRetriever.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+    private void findSongs() {
+        ContentResolver musicResolver = mContext.getContentResolver();
+        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        ModelCursorWrapper songWrapper = new ModelCursorWrapper(musicResolver.query(musicUri, null, null, null, null));
+        if (songWrapper != null && songWrapper.moveToFirst()) {
+            try {
 
-                String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-                String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                String album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-                byte[] data = metaRetriever.getEmbeddedPicture();
-                if (data != null) {
-                    mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                while (!songWrapper.isAfterLast()) {
+                    long id = songWrapper.getLong(songWrapper.getColumnIndex(MediaStore.Audio.Media._ID));
+                    Uri contentUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
+                    songWrapper.setContext(mContext);
+                    Sound song = songWrapper.getSong(contentUri);
+                    mSoundUri = contentUri;
 
-                } else {
-                    mBitmap = null;
+                    loadInMediaPlayer(contentUri);
+                    mSounds.add(song);
+//                    mLiveSong.postValue(getSongs());
+                    songWrapper.moveToNext();
                 }
 
-                afd.close();
-                Sound sound = new Sound(assetPath);
-                sound.setTitle(title);
-                sound.setArtist(artist);
-                sound.setAlbum(album);
-                sound.setBitmap(mBitmap);
-                loadInMediaPlayer(assetManager, sound);
-                mSounds.add(sound);
+            } catch (Exception e) {
+                Log.d("MusicPlayer", Objects.requireNonNull(e.getMessage()));
+            } finally {
+                songWrapper.close();
             }
-
-            metaRetriever.release();
-
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage(), e);
         }
     }
 
@@ -162,11 +157,10 @@ public class BeatBoxRepository {
         mFlagPlay = true;
         if (mMediaPlayer.isPlaying())
             mMediaPlayer.stop();
-        AssetManager assetManager = mContext.getAssets();
         try {
             for (Sound sound : mSounds) {
                 if (sound.getSoundId().equals(uuid)) {
-                    loadInMediaPlayer(assetManager, sound);
+                    loadInMediaPlayer(sound.getSoundUri());
                     play(sound);
                 }
             }
@@ -230,21 +224,6 @@ public class BeatBoxRepository {
 
     }
 
-    public void repeatAll(Sound sound) {
-        int index = getSoundIndex(sound.getSoundId());
-        if (index == mSounds.size() - 1)
-            index = 0;
-        while (index < mSounds.size() && isRepeatAll) {
-            loadMusic(mSounds.get(index).getSoundId());
-            if (index == mSounds.size() - 1)
-                index = 0;
-            else
-                index += 1;
-        }
-
-
-    }
-
     public List<Integer> shuffle() {
         Random random = new Random();
         List<Integer> soundIndex = new ArrayList<>();
@@ -261,10 +240,9 @@ public class BeatBoxRepository {
         return soundIndex;
     }
 
-    private void loadInMediaPlayer(AssetManager assetManager, Sound sound) throws IOException {
-        AssetFileDescriptor afd = assetManager.openFd(sound.getAssetPath());
+    private void loadInMediaPlayer(Uri soundUri) throws IOException {
         mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+        mMediaPlayer.setDataSource(mContext,soundUri);
         mMediaPlayer.prepare();
     }
     //it runs on demand when user want to hear the sound
@@ -294,11 +272,6 @@ public class BeatBoxRepository {
         if (mFlagPlay)
             mMediaPlayer.start();
         isMusicPlaying = true;
-    }
-
-    public void seekTo(int position) {
-        mMediaPlayer.seekTo(position);
-
     }
 
     public MediaPlayer getMediaPlayer() {

@@ -1,16 +1,15 @@
 package org.maktab.beatbox.model;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
 public class Sound{
     private String mName;
-    private String mAssetPath;
+    private Uri mSoundUri;
     private Bitmap mBitmap;
     private String mTitle;
     private String mArtist;
@@ -61,26 +60,27 @@ public class Sound{
         mName = name;
     }
 
-    public String getAssetPath() {
-        return mAssetPath;
+    public Uri getSoundUri() {
+        return mSoundUri;
     }
 
-    public void setAssetPath(String assetPath) {
-        mAssetPath = assetPath;
+    public void setSoundUri(Uri soundUri) {
+        mSoundUri = soundUri;
     }
 
-    public Sound(String assetPath) {
+    /*public Sound(String soundUri) {
 
-        mAssetPath = assetPath;
-        String[] sections = assetPath.split(File.separator);
+        mSoundUri = soundUri;
+        String[] sections = soundUri.split(File.separator);
         String fileNameWithExtension = sections[sections.length - 1];
         int lastDotIndex = fileNameWithExtension.lastIndexOf(".");
 
         mName = fileNameWithExtension.substring(0, lastDotIndex);
         mSoundId = UUID.randomUUID();
-    }
+    }*/
 
     public Sound() {
+        mSoundId = UUID.randomUUID();
     }
 
     @Override
@@ -89,7 +89,7 @@ public class Sound{
         if (o == null || getClass() != o.getClass()) return false;
         Sound sound = (Sound) o;
         return Objects.equals(mName, sound.mName) &&
-                Objects.equals(mAssetPath, sound.mAssetPath) &&
+                Objects.equals(mSoundUri, sound.mSoundUri) &&
                 Objects.equals(mBitmap, sound.mBitmap) &&
                 Objects.equals(mTitle, sound.mTitle) &&
                 Objects.equals(mArtist, sound.mArtist) &&
@@ -98,6 +98,6 @@ public class Sound{
 
     @Override
     public int hashCode() {
-        return Objects.hash(mName, mAssetPath, mBitmap, mTitle, mArtist, mAlbum);
+        return Objects.hash(mName, mSoundUri, mBitmap, mTitle, mArtist, mAlbum);
     }
 }
