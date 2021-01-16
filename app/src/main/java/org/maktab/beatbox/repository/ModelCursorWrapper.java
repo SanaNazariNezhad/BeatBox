@@ -11,6 +11,7 @@ import org.maktab.beatbox.model.Sound;
 
 public class ModelCursorWrapper extends CursorWrapper {
     private Context mContext;
+    private MediaMetadataRetriever metaRetriever;
 
         public ModelCursorWrapper(Cursor cursor) {
             super(cursor);
@@ -21,7 +22,7 @@ public class ModelCursorWrapper extends CursorWrapper {
     }
 
     public Sound getSong(Uri contentUri) {
-        MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+        metaRetriever = new MediaMetadataRetriever();
         metaRetriever.setDataSource(mContext,contentUri);
         Bitmap mBitmap;
 

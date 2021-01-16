@@ -28,7 +28,6 @@ import java.util.UUID;
 public class BeatBoxRepository {
 
     public static final String TAG = "BeatBox";
-    private static String ASSET_FOLDER = "sample_musics";
     private static BeatBoxRepository sInstance;
     private Context mContext;
     private MediaPlayer mMediaPlayer;
@@ -42,7 +41,6 @@ public class BeatBoxRepository {
     private boolean isRepeatOne;
     private boolean isRepeatAll;
     private boolean isRepeat;
-    private Uri mSoundUri;
 
     public boolean isShuffle() {
         return isShuffle;
@@ -112,6 +110,7 @@ public class BeatBoxRepository {
 
     private BeatBoxRepository(Context context) {
         mContext = context.getApplicationContext();
+        mMediaPlayer = new MediaPlayer();
         findSongs();
         mFlagPlay = false;
         mIndex = 0;
@@ -129,17 +128,14 @@ public class BeatBoxRepository {
         ContentResolver musicResolver = mContext.getContentResolver();
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         ModelCursorWrapper songWrapper = new ModelCursorWrapper(musicResolver.query(musicUri, null, null, null, null));
+        songWrapper.setContext(mContext);
         if (songWrapper != null && songWrapper.moveToFirst()) {
             try {
 
                 while (!songWrapper.isAfterLast()) {
                     long id = songWrapper.getLong(songWrapper.getColumnIndex(MediaStore.Audio.Media._ID));
                     Uri contentUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
-                    songWrapper.setContext(mContext);
                     Sound song = songWrapper.getSong(contentUri);
-                    mSoundUri = contentUri;
-
-                    loadInMediaPlayer(contentUri);
                     mSounds.add(song);
 //                    mLiveSong.postValue(getSongs());
                     songWrapper.moveToNext();
@@ -241,7 +237,6 @@ public class BeatBoxRepository {
     }
 
     private void loadInMediaPlayer(Uri soundUri) throws IOException {
-        mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setDataSource(mContext,soundUri);
         mMediaPlayer.prepare();
     }
