@@ -47,7 +47,7 @@ public class BeatBoxDetailFragment extends Fragment {
             mImageButtonRepeat;
     private boolean mIsMusicPlaying;
     private boolean mIsRepeatAll;
-    private List<Integer> mIndexList;
+    private List<Sound> mIndexList;
     private static boolean mWhichRepeatButton;
     private static boolean mWhichShuffleButton;
 
@@ -237,7 +237,7 @@ public class BeatBoxDetailFragment extends Fragment {
                 }
                 if (!isPlaying && mIndexList.size() != 0 && mWhichShuffleButton) {
                     int i = mRepository.getIndex();
-                    mRepository.loadMusic(mSounds.get(mIndexList.get(i)).getSoundId());
+//                    mRepository.loadMusic(mSounds.get(mIndexList.get(i)).getSoundId());
                     mSound = mRepository.getPlayingSound();
                     mSoundId = mSound.getSoundId();
                     initView();

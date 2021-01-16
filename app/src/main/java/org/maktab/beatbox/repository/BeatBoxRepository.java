@@ -18,6 +18,8 @@ import org.maktab.beatbox.model.Sound;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -170,7 +172,7 @@ public class BeatBoxRepository {
 
         Cursor cursor = mContext.getContentResolver().query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                projection,
+                null,
                 null,
                 null,
                 null
@@ -288,8 +290,8 @@ public class BeatBoxRepository {
 
     }
 
-    public List<Integer> shuffle() {
-        Random random = new Random();
+    public List<Sound> shuffle() {
+       /* Random random = new Random();
         List<Integer> soundIndex = new ArrayList<>();
         soundIndex.add(random.nextInt(mSounds.size() - 0) + 0);
 // you have also handle min to max index
@@ -301,7 +303,12 @@ public class BeatBoxRepository {
             }
             soundIndex.add(index);
         }
-        return soundIndex;
+        return soundIndex;*/
+
+        List<Sound> duplicate = new ArrayList<>(mSounds);
+        Collections.shuffle(duplicate);
+
+        return duplicate;
     }
 
     private void loadInMediaPlayer(AssetManager assetManager, Sound sound) throws IOException {
